@@ -1,7 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using VeterinarySystem.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<VeterinarySystemContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
@@ -18,6 +26,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

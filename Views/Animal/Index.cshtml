@@ -1,0 +1,38 @@
+﻿@model VeterinarySystem.Models.AnimalViewModel
+
+<div class="container">
+    <div class="row justify-content-between mt-3">
+        <div class="col-10 col-md-8 col-lg-5">
+            <form class="input-group mb-3" method="get">
+                <input type="text" class="form-control shadow-none" placeholder="Animal's name" asp-for="SearchString">
+                <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+            </form>
+        </div>
+
+        <div class="col-10 col-md-5 col-lg-3 text-start text-lg-end mb-3">
+            <a asp-action="create" asp-controller="animal" class="btn btn-primary" type="button">Add new animal</a>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Breed</th>
+                <th scope="col">Client</th>
+                <th scope="col">Detail</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var animal in Model.Animals)
+            {
+                <tr>
+                    <th scope="row">@animal.Name</th>
+                    <td>@animal.Breed.Name</td>
+                    <td>@animal.Client.FirstName @animal.Client.LastMame</td>
+                    <td><a asp-page="/animals/detail" asp-route-id="@animal.Id"><i class="bi bi-box-arrow-in-right text-primary"></i></a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

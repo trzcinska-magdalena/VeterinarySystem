@@ -1,0 +1,50 @@
+﻿@model VeterinarySystem.Models.CreateViewModel
+
+
+<div class="container mt-3">
+    <h2 class="text-primary">Create new animal</h2>
+    <hr />
+
+    <div class="row justify-content-center align-items-center m-0">
+        <div class="col-10">
+
+            <form method="post">
+                <div class="form-group mt-3">
+                    <label for="name" class="form-label text-dark">Name</label>
+                    <input asp-for="Animal.Name" type="text" class="form-control shadow-none" id="name">
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="birthDate" class="form-label text-dark">Birth date</label>
+                    <input asp-for="Animal.BirthDate" type="date" placeholder="yyyy-MM-dd" class="form-control shadow-none" id="birthDate">
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="breed" class="form-label">Breed</label>
+                    <select class="form-select" id="breed" asp-items="Model.Breeds" asp-for="Animal.BreedId">
+                        <option style="display:none">Select</option>
+                    </select>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="client" class="form-label">Client</label>
+                    <select class="form-select" id="clients" asp-items="Model.Clients" asp-for="Animal.ClientId">
+                        <option style="display:none">Select</option>
+                    </select>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select class="form-select" id="gender" asp-for="Animal.Gender">
+                        <option style="display:none">Select</option>
+                        <option>M</option>
+                        <option>F</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3" action="post">Create</button>
+                <div asp-validation-summary="All" class="text-danger"></div>
+            </form>
+        </div>
+    </div>
+</div>

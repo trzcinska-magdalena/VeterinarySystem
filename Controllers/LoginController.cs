@@ -6,10 +6,10 @@ namespace VeterinarySystem.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly IUnitOfWork _unionOfWork;
-        public LoginController(IUnitOfWork unionOfWork)
+        private readonly IUnitOfWork _unitOfWork;
+        public LoginController(IUnitOfWork unitOfWork)
         {
-            _unionOfWork = unionOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
@@ -20,7 +20,7 @@ namespace VeterinarySystem.Controllers
         [HttpPost]
         public IActionResult LogIn(Account account)
         {
-            var acc= _unionOfWork.Accounts.Get(e => e.Login == account.Login && e.Password == account.Password);
+            var acc= _unitOfWork.Accounts.Get(e => e.Login == account.Login && e.Password == account.Password);
 
             if (!ModelState.IsValid || acc == null)
             {

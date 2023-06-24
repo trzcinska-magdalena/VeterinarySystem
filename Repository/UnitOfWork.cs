@@ -14,7 +14,7 @@ namespace VeterinarySystem.Repository
         public IRepository<Weight> Weights { get; private set; }
         public IRepository<TypeOfVaccine> TypeOfVaccines { get; private set; }
         public IRepository<Vaccination> Vaccinations { get; private set; }
-        //public IAppointmentRepository Appointment { get; private set; }
+        public IAppointmentRepository Appointment { get; private set; }
 
 
         public UnitOfWork(VeterinarySystemContext db)
@@ -27,7 +27,7 @@ namespace VeterinarySystem.Repository
             Weights = new Repository<Weight>(_db);
             TypeOfVaccines = new Repository<TypeOfVaccine>(_db);
             Vaccinations = new Repository<Vaccination>(_db);
-            //Appointment = new AppointmentRepository(_db);
+            Appointment = new AppointmentRepository(_db);
         }
 
         public void Save()

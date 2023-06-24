@@ -36,7 +36,7 @@
             <div id="myTabContent" class="tab-content">
                 <div class="tab-pane fade active show" id="weight" role="tabpanel">
 
-                    <form method="post" class="input-group mb-3" asp-page-handler="AddWeight" asp-route-id="@Model.Animal.Id">
+                    <form method="post" class="input-group mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewWeight">
                         <input type="date" class="form-control shadow-none" placeholder="Date" asp-for="NewWeight.Date">
                         <input type="text" class="form-control shadow-none" placeholder="Weight" asp-for="NewWeight.Value">
                         <button class="btn btn-primary px-3" type="submit" id="button-add">Add</button>
@@ -61,13 +61,13 @@
                     </table>
                 </div>
                 <div class="tab-pane fade" id="vaccination" role="tabpanel">
-                    <form method="post" class="input-group mb-3" asp-page-handler="AddVaccination" asp-route-id="@Model.Animal.Id">
-                        <select class="form-select" asp-items="@Model.TypeOfVaccines" asp-for="NewVaccitation.TypeOfVaccine.Id">
+                    <form method="post" class="input-group mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewVaccination">
+                        <select class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
                             <option style="display:none">Name</option>
                         </select>
 
-                        <input type="date" class="form-control shadow-none" placeholder="Date" asp-for="NewVaccitation.Date">
-                        <input type="date" class="form-control shadow-none" placeholder="Expiry date" asp-for="NewVaccitation.ExpiryDate">
+                        <input type="date" class="form-control shadow-none" placeholder="Date" asp-for="NewVaccination.Date">
+                        <input type="date" class="form-control shadow-none" placeholder="Expiry date" asp-for="NewVaccination.ExpiryDate">
                         <button class="btn btn-primary px-3" type="submit" id="button-add">Add</button>
                     </form>
 

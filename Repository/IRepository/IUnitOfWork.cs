@@ -11,7 +11,7 @@ namespace VeterinarySystem.Repository.IRepository
         IRepository<Weight> Weights { get; }
         IRepository<TypeOfVaccine> TypeOfVaccines { get; }
         IRepository<Vaccination> Vaccinations { get; }
-        //IAppointmentRepository Appointment { get; }
+        IAppointmentRepository Appointment { get; }
 
         void Save();
     }

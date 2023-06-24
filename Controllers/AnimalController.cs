@@ -1,10 +1,8 @@
 ﻿using DogVetSystem_Razor.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Globalization;
 using VeterinarySystem.Models;
 using VeterinarySystem.Models.Db;
-using VeterinarySystem.Repository;
 using VeterinarySystem.Repository.IRepository;
 
 namespace VeterinarySystem.Controllers
@@ -108,7 +106,7 @@ namespace VeterinarySystem.Controllers
 
             animalDetailModel.Vaccinations = _unitOfWork.Vaccinations.GetAll().GroupBy(e => e.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList());
 
-            //animalDetailModel.Appointments = _unionOfWork.Appointments.GetAppointmentsWithAllData((int)animalId).ToList();
+            animalDetailModel.Appointments = _unitOfWork.Appointment.GetAppointmentsWithAllData((int)animalId).ToList();
             return animalDetailModel;
         }
 
@@ -120,6 +118,50 @@ namespace VeterinarySystem.Controllers
             }
             
             return View(SetBasicData_Detail((int)id));
+        }
+
+
+        public IActionResult AddNewWeight(int? id, Weight newWeight)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            newWeight.Animal = _unitOfWork.Animals.Get(e => e.Id == id);
+            newWeight.AnimalId = (int)id;
+
+            Console.WriteLine("weight");
+
+            if (newWeight.Value > 0 && newWeight.Date != new DateTime(0001, 01, 01, 00, 00, 00))
+            {
+                _unitOfWork.Weights.Add(newWeight);
+                _unitOfWork.Save();
+                TempData["success"] = "Weight added successfully";
+            }
+            return RedirectToAction("detail", new { id });
+        }
+
+        public IActionResult AddNewVaccination(int? id, Vaccination newVaccination)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            Console.WriteLine("newVaccitation");
+            Console.WriteLine(newVaccination.TypeOfVaccineId);
+            Console.WriteLine(newVaccination.Date);
+            newVaccination.Animal = _unitOfWork.Animals.Get(e => e.Id == id);
+            newVaccination.AnimalId = (int)id;
+
+            if (newVaccination.TypeOfVaccineId != 0 && newVaccination.Date != new DateTime(0001, 01, 01, 00, 00, 00) && newVaccination.ExpiryDate != new DateTime(0001, 01, 01, 00, 00, 00))
+            {
+                newVaccination.TypeOfVaccine = _unitOfWork.TypeOfVaccines.Get(e => e.Id == newVaccination.TypeOfVaccine.Id);
+
+                _unitOfWork.Vaccinations.Add(newVaccination);
+                _unitOfWork.Save();
+                TempData["success"] = "Vaccination added successfully";
+            }
+            return RedirectToAction("detail", new { id });
         }
     }
 }

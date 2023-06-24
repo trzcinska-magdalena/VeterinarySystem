@@ -7,7 +7,7 @@ namespace VeterinarySystem.Models
     {
         public Animal? Animal { get; set; }
         public Weight NewWeight { get; set; }
-        public Vaccination NewVaccitation { get; set; }
+        public Vaccination NewVaccination { get; set; }
         public List<Weight> Weights { get; set; }
         public List<Appointment> Appointments { get; set; }
         public List<SelectListItem> TypeOfVaccines { get; set; }

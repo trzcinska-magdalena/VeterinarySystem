@@ -1,6 +1,6 @@
 ﻿using VeterinarySystem.Models.Db;
 
-namespace VeterinarySystem.Models
+namespace VeterinarySystem.Models.ViewModels
 {
     public class AnimalViewModel
     {

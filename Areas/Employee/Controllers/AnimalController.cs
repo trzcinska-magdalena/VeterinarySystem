@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using VeterinarySystem.Models;
 using VeterinarySystem.Models.Db;
-using VeterinarySystem.Models.Models;
+using VeterinarySystem.Models.ViewModels;
 using VeterinarySystem.Repository.IRepository;
 
-namespace VeterinarySystem.Controllers
+namespace VeterinarySystem.Areas.Employee.Controllers
 {
+    [Area("Employee")]
     public class AnimalController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -47,7 +47,7 @@ namespace VeterinarySystem.Controllers
                     Text = a.Name
                 }),
 
-                Vaccinations = _unitOfWork.Vaccinations.GetAll().GroupBy(a => a.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList())
+                Vaccinations = _unitOfWork.Vaccinations.GetAll().GroupBy(a => a.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList()),
             };
             return animalDetailViewModel;
         }

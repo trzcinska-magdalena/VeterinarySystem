@@ -19,8 +19,7 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Controllers\" />
     <Folder Include="Areas\Admin\Views\" />
-    <Folder Include="Areas\Employee\Controllers\" />
-    <Folder Include="Areas\Employee\Views\" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>

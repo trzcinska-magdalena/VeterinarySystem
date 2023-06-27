@@ -2,8 +2,9 @@
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Repository.IRepository;
 
-namespace VeterinarySystem.Controllers
+namespace VeterinarySystem.Areas.Employee.Controllers
 {
+    [Area("Employee")]
     public class LoginController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

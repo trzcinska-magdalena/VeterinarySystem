@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using VeterinarySystem.Models.Db;
 
-namespace VeterinarySystem.Models.Models
+namespace VeterinarySystem.Models.ViewModels
 {
     public class AnimalCreateViewModel
     {

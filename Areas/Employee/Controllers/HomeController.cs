@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using VeterinarySystem.Models;
+using VeterinarySystem.Models.ViewModels;
 
-namespace VeterinarySystem.Controllers
+namespace VeterinarySystem.Areas.Employee.Controllers
 {
     public class HomeController : Controller
     {

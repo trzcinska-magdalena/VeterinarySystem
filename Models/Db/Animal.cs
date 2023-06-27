@@ -1,4 +1,6 @@
-﻿namespace VeterinarySystem.Models.Db
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace VeterinarySystem.Models.Db
 {
     public class Animal
     {
@@ -14,8 +16,9 @@
 
         public string Gender { get; set; } = null!;
 
+        [ValidateNever]
         public virtual Breed Breed { get; set; } = null!;
-
+        [ValidateNever]
         public virtual Client Client { get; set; } = null!;
 
         public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();

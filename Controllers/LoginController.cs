@@ -18,19 +18,20 @@ namespace VeterinarySystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult LogIn(Account account)
+        public IActionResult LogIn(Account obj)
         {
-            var acc= _unitOfWork.Accounts.Get(e => e.Login == account.Login && e.Password == account.Password);
-
-            if (!ModelState.IsValid || acc == null)
+            if (!ModelState.IsValid)
             {
-                if (acc == null)
-                {
-                    ModelState.AddModelError("", "Incorrect login or/and password!");
-
-                }
                 return View();
             }
+
+            var account = _unitOfWork.Accounts.Get(e => e.Login == obj.Login && e.Password == obj.Password);
+            if (account == null)
+            {
+                ModelState.AddModelError("", "Incorrect login or/and password!");
+                return View();
+            }
+
             return RedirectToAction("index", "animal");
         }
     }

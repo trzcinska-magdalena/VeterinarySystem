@@ -7,7 +7,7 @@ namespace VeterinarySystem.Repository
 {
     public class AnimalRepository : Repository<Animal>, IAnimalRepository
     {
-        private VeterinarySystemContext _context;
+        private readonly VeterinarySystemContext _context;
         public AnimalRepository(VeterinarySystemContext context) : base(context)
         {
             _context = context;
@@ -15,29 +15,25 @@ namespace VeterinarySystem.Repository
 
         public IEnumerable<Animal> GetAllWithData(string? whereString)
         {
+            IQueryable<Animal> query = _context.Animals
+                .Include(a => a.Breed)
+                .Include(a => a.Client);
+
             if (!string.IsNullOrEmpty(whereString))
             {
-                return _context.Animals
-                      .Include(a => a.Breed)
-                      .Include(a => a.Client)
-                      .Where(e => e.Name.Contains(whereString)).ToList();
+                query = query.Where(e => e.Name.Contains(whereString));
             }
-            else
-            {
-                return _context.Animals
-                      .Include(a => a.Breed)
-                      .Include(a => a.Client).ToList();
-            }
+
+            return query.ToList();
         }
 
         public Animal? GetWithAllData(int id)
         {
             return _context.Animals
                 .Include(a => a.Breed)
-                   .Include(a => a.Client)
-                   .Include(a => a.Weights)
-                   .Where(e => e.Id == id)
-                   .FirstOrDefault();
+                .Include(a => a.Client)
+                .Include(a => a.Weights)
+                .SingleOrDefault(e => e.Id == id);
         }
     }
 }

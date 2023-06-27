@@ -1,136 +1,147 @@
-﻿using DogVetSystem_Razor.Models.DTOs;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using VeterinarySystem.Models;
 using VeterinarySystem.Models.Db;
+using VeterinarySystem.Models.Models;
 using VeterinarySystem.Repository.IRepository;
 
 namespace VeterinarySystem.Controllers
 {
     public class AnimalController : Controller
-    {    
+    {
         private readonly IUnitOfWork _unitOfWork;
-
-        public AnimalViewModel AnimalViewModel { get; set; }
-
-        public CreateViewModel CreateViewModel { get; set; }
 
         public AnimalController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            AnimalViewModel = new AnimalViewModel();
+        }
+        public AnimalCreateViewModel ConstructAnimalCreateVM()
+        {
+
+            var animalCreateViewModel = new AnimalCreateViewModel
+            {
+                Breeds = _unitOfWork.Breeds.GetAll().Select(breed =>
+                new SelectListItem
+                {
+                    Value = breed.Id.ToString(),
+                    Text = breed.Name
+                }),
+
+                Clients = _unitOfWork.Clients.GetAll().Select(client =>
+                new SelectListItem
+                {
+                    Value = client.Id.ToString(),
+                    Text = $"{client.FirstName} {client.LastMame}"
+                }),
+            };
+            return animalCreateViewModel;
+        }
+        public AnimalDetailViewModel ConstructAnimalDetailVM()
+        {
+            var animalDetailViewModel = new AnimalDetailViewModel
+            {
+                TypeOfVaccines = _unitOfWork.TypeOfVaccines.GetAll().Select(a =>
+                new SelectListItem
+                {
+                    Value = a.Id.ToString(),
+                    Text = a.Name
+                }),
+
+                Vaccinations = _unitOfWork.Vaccinations.GetAll().GroupBy(a => a.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList())
+            };
+            return animalDetailViewModel;
         }
 
         public IActionResult Index()
         {
-            AnimalViewModel.Animals = _unitOfWork.Animals.GetAllWithData(null).ToList();
-            return View(AnimalViewModel);
+            var animalViewModel = new AnimalViewModel
+            {
+                Animals = _unitOfWork.Animals.GetAllWithData(null).ToList()
+            };
+            return View(animalViewModel);
         }
 
         [HttpGet]
         public IActionResult Index(string searchString)
         {
-            AnimalViewModel.Animals = _unitOfWork.Animals.GetAllWithData(searchString).ToList();
-            return View(AnimalViewModel);
-        }
-
-        public CreateViewModel PowerInputs_Create()
-        {
-            CreateViewModel = new CreateViewModel();
-
-            CreateViewModel.Breeds = _unitOfWork.Breeds.GetAll().ToList().ConvertAll(breed =>
+            var animalViewModel = new AnimalViewModel
             {
-                return new SelectListItem()
-                {
-                    Value = breed.Id.ToString(),
-                    Text = breed.Name
-                };
-            });
-
-            CreateViewModel.Clients = _unitOfWork.Clients.GetAll().ToList().ConvertAll(client =>
-            {
-                return new SelectListItem()
-                {
-                    Value = client.Id.ToString(),
-                    Text = client.FirstName + " " + client.LastMame
-                };
-            });
-            return CreateViewModel;
+                Animals = _unitOfWork.Animals.GetAllWithData(searchString).ToList()
+            };
+            return View(animalViewModel);
         }
 
         public IActionResult Create()
         {
-            return View(PowerInputs_Create());
+            return View(ConstructAnimalCreateVM());
         }
+
         [HttpPost]
-        public IActionResult Create(AnimalPOST animal)
-        {           
-            Client? client = _unitOfWork.Clients.Get(e => e.Id == animal.ClientId);
-            Breed? breed = _unitOfWork.Breeds.Get(e => e.Id == animal.BreedId);
+        public IActionResult Create(Animal animal)
+        {
+            var client = _unitOfWork.Clients.Get(e => e.Id == animal.ClientId);
+            var breed = _unitOfWork.Breeds.Get(e => e.Id == animal.BreedId);
 
             if (client == null || breed == null || !ModelState.IsValid)
             {
-                return View(PowerInputs_Create());
+                return View(ConstructAnimalCreateVM());
             }
 
-            _unitOfWork.Animals.Add(new Animal()
-            {
-                Name = animal.Name,
-                BirthDate = animal.BirthDate,
-                Gender = animal.Gender,
-                Breed = breed,
-                Client = client
-            });
+            animal.Client = client;
+            animal.Breed = breed;
 
+            _unitOfWork.Animals.Add(animal);
             _unitOfWork.Save();
             TempData["success"] = "Animal created successfully";
 
-            return RedirectToAction("index");
-        }
-
-        public AnimalDetailModel SetBasicData_Detail(int animalId)
-        {
-            AnimalDetailModel animalDetailModel = new AnimalDetailModel();
-
-            animalDetailModel.Animal = _unitOfWork.Animals.GetWithAllData((int)animalId);
-            animalDetailModel.Weights = _unitOfWork.Weights.GetAll().Where(e => e.AnimalId == animalId).ToList();
-
-            animalDetailModel.TypeOfVaccines = _unitOfWork.TypeOfVaccines.GetAll().ToList().ConvertAll(a =>
-            {
-                return new SelectListItem()
-                {
-                    Value = a.Id.ToString(),
-                    Text = a.Name
-                };
-            });
-
-            animalDetailModel.Vaccinations = _unitOfWork.Vaccinations.GetAll().GroupBy(e => e.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList());
-
-            animalDetailModel.Appointments = _unitOfWork.Appointment.GetAppointmentsWithAllData((int)animalId).ToList();
-            return animalDetailModel;
+            return RedirectToAction("Index");
         }
 
         public IActionResult Detail(int? id)
         {
-            if (id == null || id == 0)
+            if (id == null)
             {
                 return NotFound();
             }
-            
-            return View(SetBasicData_Detail((int)id));
-        }
 
+            var animal = _unitOfWork.Animals.GetWithAllData((int)id);
+            if (animal == null)
+            {
+                return NotFound();
+            }
+
+            var animalDetailModel = ConstructAnimalDetailVM();
+            animalDetailModel.Animal = animal;
+            animalDetailModel.Appointments = _unitOfWork.Appointment.GetAppointmentsWithAllData((int)id).ToList();
+
+            return View(animalDetailModel);
+        }
 
         public IActionResult AddNewWeight(int? id, Weight newWeight)
         {
-            if (id == null || id == 0)
+            if (id == null)
             {
                 return NotFound();
             }
-            newWeight.Animal = _unitOfWork.Animals.Get(e => e.Id == id);
-            newWeight.AnimalId = (int)id;
 
-            Console.WriteLine("weight");
+            var animal = _unitOfWork.Animals.Get(e => e.Id == id);
+            if (animal == null)
+            {
+                return NotFound();
+            }
+
+            newWeight.Animal = animal;
+
+            if (newWeight.Date < DateTime.Now)
+            {
+                TempData["warning"] = "The entered date is earlier than today's date";
+
+            }
+            else if (newWeight.Date > DateTime.Now)
+            {
+                TempData["warning"] = "The entered date is later than today's date";
+            }
+
 
             if (newWeight.Value > 0 && newWeight.Date != new DateTime(0001, 01, 01, 00, 00, 00))
             {
@@ -138,20 +149,16 @@ namespace VeterinarySystem.Controllers
                 _unitOfWork.Save();
                 TempData["success"] = "Weight added successfully";
             }
-            return RedirectToAction("detail", new { id });
+            return RedirectToAction("Detail", new { id });
         }
 
         public IActionResult AddNewVaccination(int? id, Vaccination newVaccination)
         {
-            if (id == null || id == 0)
+            if (id == null)
             {
                 return NotFound();
             }
-            Console.WriteLine("newVaccitation");
-            Console.WriteLine(newVaccination.TypeOfVaccineId);
-            Console.WriteLine(newVaccination.Date);
             newVaccination.Animal = _unitOfWork.Animals.Get(e => e.Id == id);
-            newVaccination.AnimalId = (int)id;
 
             if (newVaccination.TypeOfVaccineId != 0 && newVaccination.Date != new DateTime(0001, 01, 01, 00, 00, 00) && newVaccination.ExpiryDate != new DateTime(0001, 01, 01, 00, 00, 00))
             {
@@ -161,7 +168,7 @@ namespace VeterinarySystem.Controllers
                 _unitOfWork.Save();
                 TempData["success"] = "Vaccination added successfully";
             }
-            return RedirectToAction("detail", new { id });
+            return RedirectToAction("Detail", new { id });
         }
     }
 }

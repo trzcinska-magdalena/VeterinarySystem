@@ -18,7 +18,7 @@
                     <input asp-for="Password" type="password" class="form-control shadow-none login @(@ViewData.ModelState.IsValid ? "" : "is-invalid")" />
                 </div>
             </div>
-            <button asp-page-handler="LogIn" type="submit" class="btn btn-primary mt-3 login">Log in</button>
+            <button type="submit" class="btn btn-primary mt-3 login">Log in</button>
             <div asp-validation-summary="All" class="text-danger"></div>
         </form>
     </div>

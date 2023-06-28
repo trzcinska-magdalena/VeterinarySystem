@@ -19,7 +19,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         }
 
         [HttpPost]
-        public IActionResult LogIn(Account obj)
+        public IActionResult Index(Account obj)
         {
             if (!ModelState.IsValid)
             {
@@ -32,8 +32,8 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 ModelState.AddModelError("", "Incorrect login or/and password!");
                 return View();
             }
-
-            return RedirectToAction("index", "animal");
+            Console.Write("pop");
+            return RedirectToAction("Index", "Animal");
         }
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using VeterinarySystem.Data;
 using VeterinarySystem.Repository;
 using VeterinarySystem.Repository.IRepository;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<VeterinarySystemContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<VeterinarySystemContext>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

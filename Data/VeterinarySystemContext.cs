@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using VeterinarySystem.Configuration;
 using VeterinarySystem.Models.Db;
 
 namespace VeterinarySystem.Data
 {
-    public class VeterinarySystemContext : DbContext
+    public class VeterinarySystemContext : IdentityDbContext
     {
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Animal> Animals { get; set; }

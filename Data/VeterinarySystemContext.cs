@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using VeterinarySystem.Configuration;
+using VeterinarySystem.Models;
 using VeterinarySystem.Models.Db;
 
 namespace VeterinarySystem.Data
@@ -23,7 +24,9 @@ namespace VeterinarySystem.Data
         public DbSet<Vet> Vets { get; set; }
         public DbSet<VetSpecialisation> VetSpecialisations { get; set; }
         public DbSet<Weight> Weights { get; set; }
-        
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
+
         public VeterinarySystemContext()
         {
         }
@@ -34,6 +37,8 @@ namespace VeterinarySystem.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.ApplyConfiguration(new AccountConfiguration());
             modelBuilder.ApplyConfiguration(new AnimalConfiguration());
             modelBuilder.ApplyConfiguration(new AppointmentConfiguration());

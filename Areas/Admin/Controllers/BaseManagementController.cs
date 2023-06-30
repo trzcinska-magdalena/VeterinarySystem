@@ -53,7 +53,8 @@ namespace VeterinarySystem.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult UpdateAccount(Account newAccount)
         {
-            if (_unitOfWork.Accounts.GetAll().Any(e => e.Login == newAccount.Login))
+            var existingAccount = _unitOfWork.Accounts.GetAll().Where(e => e.Login == newAccount.Login).FirstOrDefault();
+            if (existingAccount != null && existingAccount.Id != newAccount.Id)
             {
                 TempData["error"] = "Login exist!";
                 return View("Index", ConstructBaseManagementVM());

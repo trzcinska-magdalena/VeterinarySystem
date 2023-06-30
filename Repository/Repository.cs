@@ -20,14 +20,29 @@ namespace VeterinarySystem.Repository
             dbSet.Add(entity);
         }
 
-        public T Get(Expression<Func<T, bool>> filter)
+        public T Get(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
-            return dbSet.Where(filter).FirstOrDefault();
+            IQueryable<T> query = dbSet;
+            query = query.Where(filter);
+
+            foreach (var property in includeProperties)
+            {
+                query = query.Include(property);
+            }
+
+            return query.FirstOrDefault();
         }
 
-        public IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includeProperties)
         {
-            return dbSet.ToList();
+            IQueryable<T> query = dbSet;
+
+            foreach (var property in includeProperties)
+            {
+                query = query.Include(property);
+            }
+
+            return query.ToList();
         }
 
         public void Remove(T entity)

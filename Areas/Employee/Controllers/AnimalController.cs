@@ -56,7 +56,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             var animalViewModel = new AnimalViewModel
             {
-                Animals = _unitOfWork.Animals.GetAllWithData(null).ToList()
+                Animals = _unitOfWork.Animals.GetAll(x=>x.Breed, x=>x.Client).ToList()
             };
             return View(animalViewModel);
         }
@@ -66,8 +66,13 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             var animalViewModel = new AnimalViewModel
             {
-                Animals = _unitOfWork.Animals.GetAllWithData(searchString).ToList()
+                Animals = _unitOfWork.Animals.GetAll(x => x.Breed, x => x.Client).ToList()
             };
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                animalViewModel.Animals = animalViewModel.Animals.Where(e => e.Name.ToLower().Contains(searchString.ToLower())).ToList();
+            }
             return View(animalViewModel);
         }
 
@@ -104,7 +109,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 return NotFound();
             }
 
-            var animal = _unitOfWork.Animals.GetWithAllData((int)id);
+            var animal = _unitOfWork.Animals.Get(e=>e.Id == id, x => x.Breed, x => x.Client, x => x.Weights);
             if (animal == null)
             {
                 return NotFound();
@@ -112,8 +117,8 @@ namespace VeterinarySystem.Areas.Employee.Controllers
 
             var animalDetailModel = ConstructAnimalDetailVM();
             animalDetailModel.Animal = animal;
-            animalDetailModel.Appointments = _unitOfWork.Appointment.GetAppointmentsWithAllData((int)id).ToList();
-
+            animalDetailModel.Appointments = _unitOfWork.Appointments.GetAppointmentsWithAllData((int)id).ToList();
+                
             return View(animalDetailModel);
         }
 

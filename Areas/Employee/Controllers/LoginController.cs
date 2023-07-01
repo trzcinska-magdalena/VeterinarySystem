@@ -32,7 +32,6 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 ModelState.AddModelError("", "Incorrect login or/and password!");
                 return View();
             }
-            Console.Write("pop");
             return RedirectToAction("Index", "Animal");
         }
     }

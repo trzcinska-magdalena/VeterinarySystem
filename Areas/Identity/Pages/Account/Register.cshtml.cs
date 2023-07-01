@@ -100,7 +100,6 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
-
             public bool Admin { get; set; }
         }
 
@@ -133,6 +132,15 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    if(Input.Admin)
+                    {
+                        await _userManager.AddToRoleAsync(user, UserRole.Role_Admin);
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, UserRole.Role_Employee);
+                    }
 
 
                     /*

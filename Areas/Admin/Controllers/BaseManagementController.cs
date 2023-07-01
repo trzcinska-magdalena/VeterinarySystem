@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Principal;
+using VeterinarySystem.Data;
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
 using VeterinarySystem.Repository.IRepository;
@@ -8,6 +10,7 @@ using VeterinarySystem.Repository.IRepository;
 namespace VeterinarySystem.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = UserRole.Role_Admin)]
     public class BaseManagementController : Controller
     {
 

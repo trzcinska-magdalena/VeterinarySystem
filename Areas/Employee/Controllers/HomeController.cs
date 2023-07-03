@@ -4,6 +4,7 @@ using VeterinarySystem.Models.ViewModels;
 
 namespace VeterinarySystem.Areas.Employee.Controllers
 {
+    [Area("Employee")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -15,7 +16,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Login", "Account", new { area = "Identity" });
         }
 
         public IActionResult Privacy()

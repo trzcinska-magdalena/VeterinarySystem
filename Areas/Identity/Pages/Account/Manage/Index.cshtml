@@ -5,13 +5,49 @@
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<div class="container">
-    <h4></h4>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-3 justify-content-center">
+            <div class="photo border" style="height: 150px; width: 150px">
+                PHOTO
+            </div>
+        </div>
+
+        <div class="col d-flex flex-column">
+            <h5>FIRST NAME    LAST NAME</h5>
+
+            <div class="mt-auto">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#appointments" role="tab"><i class="bi bi-calendar-week-fill me-1"></i>Appointments</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#specialisations" role="tab"><i class="bi bi-collection-fill me-1"></i>Specialisations</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#settings" role="tab"><i class="bi bi-gear-fill me-1"></i>Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content mt-3">
+        <div class="tab-pane fade active show" id="appointments" role="tabpanel">
+            <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
+        </div>
+        <div class="tab-pane fade" id="specialisations" role="tabpanel">
+            <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
+        </div>
+        <div class="tab-pane fade" id="settings" role="tabpanel">
+            <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
+        </div>
+    </div>
 </div>
 
 
 
-
+@*
 <div class="row">
     <div class="col-md-6">
         <form id="profile-form" method="post">
@@ -29,6 +65,7 @@
         </form>
     </div>
 </div>
+*@
 
 
 @section Scripts {

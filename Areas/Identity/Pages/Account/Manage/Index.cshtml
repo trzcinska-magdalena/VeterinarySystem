@@ -7,27 +7,36 @@
 
 <div class="container mt-3">
     <div class="row">
-        <div class="col-3 justify-content-center">
-            <div class="photo border" style="height: 150px; width: 150px">
-                PHOTO
+        <div class="col d-flex">
+            <div class="photo border me-3" style="height: 150px; width: 150px">
+                
             </div>
-        </div>
 
-        <div class="col d-flex flex-column">
-            <h5>FIRST NAME    LAST NAME</h5>
+            <div class="d-flex flex-column">
+                <h5>FIRST NAME    LAST NAME</h5>
 
-            <div class="mt-auto">
-                <ul class="nav nav-tabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active" data-bs-toggle="tab" href="#appointments" role="tab"><i class="bi bi-calendar-week-fill me-1"></i>Appointments</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" data-bs-toggle="tab" href="#specialisations" role="tab"><i class="bi bi-collection-fill me-1"></i>Specialisations</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" data-bs-toggle="tab" href="#settings" role="tab"><i class="bi bi-gear-fill me-1"></i>Settings</a>
-                    </li>
-                </ul>
+                <div class="mt-auto">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#appointments" role="tab">
+                                <i class="bi bi-calendar-week-fill me-1"></i>
+                                <span class="d-none d-md-inline">Appointments</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#specialisations" role="tab">
+                                <i class="bi bi-collection-fill me-1"></i>
+                                <span class="d-none d-md-inline">Specialisations</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#settings" role="tab">
+                                <i class="bi bi-gear-fill me-1"></i>
+                                <span class="d-none d-md-inline">Settings</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -37,21 +46,52 @@
             <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
         </div>
         <div class="tab-pane fade" id="specialisations" role="tabpanel">
-            <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
+            <table class="table table-hover mt-3">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th>Date from</th>                  
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
         </div>
         <div class="tab-pane fade" id="settings" role="tabpanel">
-            <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
+            <form method="post">
+                <div class="form-group mb-2">
+                    <label for="login">Login</label>
+                    <input type="text" class="form-control" id="login" value="Admin" disabled>
+                </div>
+
+                <button class="btn btn-primary" id="changePassword" type="button">Change password</button>
+
+                <div id="password-box" class="visually-hidden mt-2">
+                    <div class="form-group my-2">
+                        <label for="password">New password</label>
+                        <input type="password" class="form-control" id="password">
+                    </div>
+                    <button class="btn btn-primary" type="submit">Update</button>
+                </div>
+            </form>     
+          
         </div>
     </div>
 </div>
 
+<script>
+    document.getElementById("changePassword").addEventListener("click", () => {
+        console.log("click");
+        document.getElementById("password-box").classList.toggle("visually-hidden");
+    });
+</script>
 
 
 @*
 <div class="row">
     <div class="col-md-6">
         <form id="profile-form" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
                 <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
                 <label asp-for="Username" class="form-label"></label>

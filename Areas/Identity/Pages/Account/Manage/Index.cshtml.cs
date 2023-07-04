@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using VeterinarySystem.Models.Db;
 
 namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
 {
@@ -111,5 +112,7 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }
+
+        
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using VeterinarySystem.Models.Db;
 
 namespace VeterinarySystem.Models
 {
@@ -7,5 +8,7 @@ namespace VeterinarySystem.Models
     {
         [Required]
         public int Name { get; set; }
+
+        public virtual Vet Vet { get; set; }
     }
 }

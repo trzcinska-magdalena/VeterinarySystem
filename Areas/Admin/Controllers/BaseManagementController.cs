@@ -25,7 +25,7 @@ namespace VeterinarySystem.Areas.Admin.Controllers
         {
             var baseManagementViewModel = new BaseManagementViewModel
             {
-                Accounts = _unitOfWork.Accounts.GetAll()
+                Breeds = _unitOfWork.Breeds.GetAll()
             };
             return baseManagementViewModel;
         }
@@ -35,11 +35,11 @@ namespace VeterinarySystem.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddNewAccount(Account newAccount)
+        public IActionResult AddNewBreed(Breed newBreed)
         {
-            if (_unitOfWork.Accounts.GetAll().Any(e => e.Login == newAccount.Login))
+            if (_unitOfWork.Breeds.GetAll().Any(e => e.Name == newBreed.Name))
             {
-                TempData["error"] = "Login exist!";
+                TempData["error"] = "This breed exist!";
                 return View("Index", ConstructBaseManagementVM());
             }
             if (!ModelState.IsValid)
@@ -47,19 +47,19 @@ namespace VeterinarySystem.Areas.Admin.Controllers
                 return View("Index", ConstructBaseManagementVM());
             }
             
-            _unitOfWork.Accounts.Add(newAccount);
+            _unitOfWork.Breeds.Add(newBreed);
             _unitOfWork.Save();
-            TempData["success"] = "Account created successfully";
-            return RedirectToAction("Index", new { type = "Account" });
+            TempData["success"] = "The breed created successfully";
+            return RedirectToAction("Index", new { type = "Breed" });
         }
 
         [HttpPost]
-        public IActionResult UpdateAccount(Account newAccount)
+        public IActionResult UpdateBreed(Breed newBreed)
         {
-            var existingAccount = _unitOfWork.Accounts.GetAll().Where(e => e.Login == newAccount.Login).FirstOrDefault();
-            if (existingAccount != null && existingAccount.Id != newAccount.Id)
+            var existingBreed= _unitOfWork.Breeds.GetAll().Where(e => e.Name == newBreed.Name).FirstOrDefault();
+            if (existingBreed != null && existingBreed.Id != newBreed.Id)
             {
-                TempData["error"] = "Login exist!";
+                TempData["error"] = "This breed exist!";
                 return View("Index", ConstructBaseManagementVM());
             }
             if (!ModelState.IsValid)
@@ -67,36 +67,34 @@ namespace VeterinarySystem.Areas.Admin.Controllers
                 return View("Index", ConstructBaseManagementVM());
             }
 
-            var account = _unitOfWork.Accounts.Get(e => e.Id == newAccount.Id);
-            if (account == null)
+            var breed = _unitOfWork.Breeds.Get(e => e.Id == newBreed.Id);
+            if (breed == null)
             {
                 return View("Index", ConstructBaseManagementVM());
             }
 
-            account.Login = newAccount.Login;
-            account.Password = newAccount.Password;
-            account.Admin = newAccount.Admin;
+            breed.Name = newBreed.Name;
 
-            _unitOfWork.Accounts.Update(account);
+            _unitOfWork.Breeds.Update(breed);
             _unitOfWork.Save();
-            TempData["success"] = "Account updated successfully";
-            return RedirectToAction("Index", new { type = "Account" });
+            TempData["success"] = "The bread updated successfully";
+            return RedirectToAction("Index", new { type = "Breed" });
         }
 
 
-        [HttpPost, ActionName("DeleteAccount")]
-        public IActionResult DeleteAccount(int id)
+        [HttpPost, ActionName("DeleteBreed")]
+        public IActionResult DeleteBreed(int id)
         {
-            var account = _unitOfWork.Accounts.Get(e => e.Id == id);
-            if (account == null)
+            var breed = _unitOfWork.Breeds.Get(e => e.Id == id);
+            if (breed == null)
             {
                 return View("Index", ConstructBaseManagementVM());
             }
 
-            _unitOfWork.Accounts.Remove(account);
+            _unitOfWork.Breeds.Remove(breed);
             _unitOfWork.Save();
-            TempData["success"] = "Account removed successfully";
-            return RedirectToAction("Index", new { type = "Account" });
+            TempData["success"] = "The breed removed successfully";
+            return RedirectToAction("Index", new { type = "Breed" });
         }
 
 

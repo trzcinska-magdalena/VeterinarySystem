@@ -1,45 +1,43 @@
 ﻿@model BaseManagementViewModel
 
-<div class="container">
+
+
+<div class="container justify-content-center">
     <table class="table table-hover mt-3">
         <thead>
             <tr>
-                <th scope="col">Login</th>
-                <th scope="col">Password</th>
-                <th scope="col">Admin</th>
+                <th scope="col">Name</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
 
-            <form method="post" asp-action="AddNewAccount">
+            <form method="post" asp-action="AddNewBreed">
             <tr>
-                <td>
-                    <input asp-for="NewAccount.Login" type="text" class="form-control shadow-none">   
+                <td class="bg-secondary-subtle">
+                    <input asp-for="NewBreed.Name" type="text" class="form-control shadow-none">
                 </td>
-                <td><input asp-for="NewAccount.Password" type="text" class="form-control shadow-none"></td>
-                <td><input asp-for="NewAccount.Admin" class="form-check-input" type="checkbox"></td>
-                <td><button type="submit" class="btn btn-sm btn-primary m-1">Add</button></td>
+                <td class="bg-secondary-subtle">
+                    <button type="submit" class="btn btn-sm btn-primary m-1">Add</button>
+                </td>
             </tr>
             </form>
-            @foreach (var account in Model.Accounts)
+            @foreach (var breed in Model.Breeds)
             {
                 <form method="post">
-                    <tr>
-                        <td>
-                        <input asp-for="@account.Id" name="Id" type="text" class="form-control shadow-none" hidden>
-                            <input asp-for="@account.Login" name="Login" type="text" class="form-control shadow-none">
-                        </td>
-                        <td><input asp-for="@account.Password" name="Password" type="text" class="form-control shadow-none"></td>
-                    <td><input asp-for="@account.Admin" name="Admin" class="form-check-input" type="checkbox"></td>
-                        <td>
-                        <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="UpdateAccount">Save</button>
-                        <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="DeleteAccount">Delete</button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>
+                        <input asp-for="@breed.Id" name="Id" type="text" class="form-control shadow-none" hidden>
+                        <input asp-for="@breed.Name" name="Name" type="text" class="form-control shadow-none">
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="UpdateBreed">Save</button>
+                        <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="DeleteBreed">Delete</button>
+                    </td>
+                </tr>
                 </form>
             }
-            
+
         </tbody>
     </table>
 </div>

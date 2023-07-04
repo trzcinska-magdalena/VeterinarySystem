@@ -14,9 +14,9 @@ namespace VeterinarySystem.Configuration
             entity.Property(e => e.FirstName).HasMaxLength(30).IsRequired();
             entity.Property(e => e.LastName).HasMaxLength(20).IsRequired();
 
-            entity.HasOne(e => e.Account)
-            .WithMany(e => e.Vets)
-            .HasForeignKey(e => e.AccountId)
+            entity.HasOne(e => e.ApplicationUser)
+            .WithOne(e => e.Vet)
+            .HasForeignKey<Vet>(e => e.ApplicationUserId)
             .OnDelete(DeleteBehavior.Cascade);
         }
     }

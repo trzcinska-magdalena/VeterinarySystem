@@ -8,9 +8,9 @@
 
         public string LastName { get; set; } = null!;
 
-        public int AccountId { get; set; }
+        public string ApplicationUserId { get; set; }
 
-        public virtual Account Account { get; set; } = null!;
+        public virtual ApplicationUser ApplicationUser { get; set; } = null!;
 
         public virtual ICollection<VetSpecialisation> VetSpecialisations { get; set; } = new List<VetSpecialisation>();
 

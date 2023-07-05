@@ -4,10 +4,15 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using VeterinarySystem.Data;
 using VeterinarySystem.Models.Db;
+using VeterinarySystem.Models.ViewModels;
+using VeterinarySystem.Repository.IRepository;
 
 namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
 {
@@ -16,69 +21,48 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
 
+        private readonly IUnitOfWork _unitOfWork;
+
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            IUnitOfWork unitOfWork
+            )
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _unitOfWork = unitOfWork;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public string Username { get; set; }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [TempData]
-        public string StatusMessage { get; set; }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
-        public InputModel Input { get; set; }
+        public AccountManageViewModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public class InputModel
+        private AccountManageViewModel LoadModelView(IdentityUser user, Vet vet)
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Phone]
-            [Display(Name = "Phone number")]
-            public string PhoneNumber { get; set; }
-        }
-
-        {
-            var userName = await _userManager.GetUserNameAsync(user);
-            
-            Username = userName;
-
-            Input = new InputModel
+            Input = new AccountManageViewModel
             {
-                
+                FullName = $"{vet.FirstName} {vet.LastName}",
+                Username = user.UserName,
+                VetSpecialisations = _unitOfWork.VetSpecialisations.GetAll(e => e.Specialisation).Where(e => e.VetId == vet.Id).OrderByDescending(e => e.DateFrom).ToList(),
             };
+            return Input;
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
+
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
+            var vet = _unitOfWork.Vets.Get(e => e.ApplicationUserId == user.Id);
+            if (vet == null)
+            {
+                return NotFound();
+            }
 
-            await LoadAsync(user);
+            LoadModelView(user, vet);
             return Page();
         }
 
@@ -90,28 +74,27 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
+            var vet = _unitOfWork.Vets.Get(e => e.ApplicationUserId == user.Id);
             if (!ModelState.IsValid)
             {
-                await LoadAsync(user);
+                LoadModelView(user, vet);
                 return Page();
             }
 
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
+            var addPasswordResult = await _userManager.ChangePasswordAsync(user, Input.OldPassword, Input.NewPassword);
+            if (!addPasswordResult.Succeeded)
             {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
+                foreach (var error in addPasswordResult.Errors)
                 {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
-                    return RedirectToPage();
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
+                LoadModelView(user, vet);
+                return Page();
             }
-
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
+            TempData["success"] = "Your password has been changed.";
+            LoadModelView(user, vet);
             return RedirectToPage();
         }
-
-        
     }
 }

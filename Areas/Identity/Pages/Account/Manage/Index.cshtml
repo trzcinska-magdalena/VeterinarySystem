@@ -9,11 +9,10 @@
     <div class="row">
         <div class="col d-flex">
             <div class="photo border me-3" style="height: 150px; width: 150px">
-                
             </div>
 
             <div class="d-flex flex-column">
-                <h5>FIRST NAME    LAST NAME</h5>
+                <h5>@Model.Input.FullName</h5>
 
                 <div class="mt-auto">
                     <ul class="nav nav-tabs" role="tablist">
@@ -43,70 +42,95 @@
 
     <div class="tab-content mt-3">
         <div class="tab-pane fade active show" id="appointments" role="tabpanel">
-            <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
+            <div id="calendar"></div>
         </div>
         <div class="tab-pane fade" id="specialisations" role="tabpanel">
             <table class="table table-hover mt-3">
                 <thead>
                     <tr>
                         <th scope="col">Name</th>
-                        <th>Date from</th>                  
+                        <th>Date from</th>
                     </tr>
                 </thead>
                 <tbody>
-
+                    @foreach (var specialisation in Model.Input.VetSpecialisations)
+                    {
+                        <tr>
+                            <td>@specialisation.Specialisation.Name</td>
+                            <td>@specialisation.DateFrom.ToString("yyyy-MM-dd")</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
         <div class="tab-pane fade" id="settings" role="tabpanel">
-            <form method="post">
-                <div class="form-group mb-2">
-                    <label for="login">Login</label>
-                    <input type="text" class="form-control" id="login" value="Admin" disabled>
-                </div>
 
-                <button class="btn btn-primary" id="changePassword" type="button">Change password</button>
+            <div class="form-group mb-3">
+                <label for="login">Login</label>
+                <input asp-for="Input.Username" type="text" class="form-control" id="login" disabled>
+            </div>
 
-                <div id="password-box" class="visually-hidden mt-2">
-                    <div class="form-group my-2">
-                        <label for="password">New password</label>
-                        <input type="password" class="form-control" id="password">
+            <button class="btn btn-primary" id="changePassword" type="button">Change password</button>
+
+            <div id="password-box" class="visually-hidden mt-3">
+                <form id="set-password-form" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Input.OldPassword" class="form-label"></label>
+                        <input asp-for="Input.OldPassword" class="form-control" />
+                        <span asp-validation-for="Input.OldPassword" class="text-danger"></span>
                     </div>
-                    <button class="btn btn-primary" type="submit">Update</button>
-                </div>
-            </form>     
-          
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Input.NewPassword" class="form-label"></label>
+                        <input asp-for="Input.NewPassword" class="form-control" />
+                        <span asp-validation-for="Input.NewPassword" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+                        <input asp-for="Input.ConfirmPassword" class="form-control" />
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Set password</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            navLinks: true,
+            headerToolbar: {
+                left: 'prev,next,listYear',
+                center: 'title',
+                right: 'dayGridMonth,dayGridWeek,dayGridDay'
+            },
+            dayMaxEvents: true,
+                 
+            events: [
+                {
+                    title: 'Meeting',
+                    start: '2023-08-12',
+                    backgroundColor: 'green',
+                }
+            ],
+        });
+        calendar.render();
+    });
+
+
     document.getElementById("changePassword").addEventListener("click", () => {
         console.log("click");
         document.getElementById("password-box").classList.toggle("visually-hidden");
     });
+
+    
 </script>
-
-
-@*
-<div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post">
-            <div class="form-floating mb-3">
-                <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
-                <label asp-for="Username" class="form-label"></label>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-            </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
-        </form>
-    </div>
-</div>
-*@
-
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

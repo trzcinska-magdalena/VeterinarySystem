@@ -10,7 +10,7 @@
 
         public string ApplicationUserId { get; set; }
 
-        public virtual ApplicationUser ApplicationUser { get; set; } = null!;
+        public virtual ApplicationUser ApplicationUser { get; set; }
 
         public virtual ICollection<VetSpecialisation> VetSpecialisations { get; set; } = new List<VetSpecialisation>();
 

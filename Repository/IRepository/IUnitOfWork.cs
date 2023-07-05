@@ -6,12 +6,14 @@ namespace VeterinarySystem.Repository.IRepository
     {
         IRepository<Animal> Animals { get; }
         IRepository<Client> Clients { get; }
-        IRepository<Account> Accounts { get; }
         IRepository<Breed> Breeds { get; }
         IRepository<Weight> Weights { get; }
         IRepository<TypeOfVaccine> TypeOfVaccines { get; }
         IRepository<Vaccination> Vaccinations { get; }
         IAppointmentRepository Appointments { get; }
+        IRepository<Vet> Vets { get; }
+        IRepository<Specialisation> Specialisations { get; }
+        IRepository<VetSpecialisation> VetSpecialisations { get; }
 
         void Save();
     }

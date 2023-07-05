@@ -8,7 +8,6 @@ namespace VeterinarySystem.Data
 {
     public class VeterinarySystemContext : IdentityDbContext
     {
-        public DbSet<Account> Accounts { get; set; }
         public DbSet<Animal> Animals { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<AppointmentMedicine> AppointmentMedicines { get; set; }
@@ -39,7 +38,6 @@ namespace VeterinarySystem.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.ApplyConfiguration(new AccountConfiguration());
             modelBuilder.ApplyConfiguration(new AnimalConfiguration());
             modelBuilder.ApplyConfiguration(new AppointmentConfiguration());
             modelBuilder.ApplyConfiguration(new AppointmentMedicineConfiguration());

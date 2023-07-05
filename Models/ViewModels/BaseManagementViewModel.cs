@@ -6,10 +6,6 @@ namespace VeterinarySystem.Models.ViewModels
     public class BaseManagementViewModel
     { 
         [ValidateNever]
-        public IEnumerable<Account> Accounts { get; set; }
-        public Account NewAccount { get; set; }
-
-        [ValidateNever]
         public IEnumerable<Vet> Vets { get; set; }
         public Vet NewVet { get; set; }
 

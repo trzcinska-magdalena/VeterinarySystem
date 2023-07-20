@@ -1,12 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
+using VeterinarySystem.Data;
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
+using VeterinarySystem.Repository;
 using VeterinarySystem.Repository.IRepository;
 
 namespace VeterinarySystem.Areas.Employee.Controllers
 {
     [Area("Employee")]
+    [Authorize(Roles = UserRole.Role_Admin + "," + UserRole.Role_Employee)]
     public class AnimalController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -174,6 +180,40 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 TempData["success"] = "Vaccination added successfully";
             }
             return RedirectToAction("Detail", new { id });
+        }
+
+        public IActionResult UpdateWeights(string label, int value, int id)
+        {
+            var weight = _unitOfWork.Weights.Get(e => e.AnimalId == id && e.Date == DateTime.Parse(label));
+            
+            if (value == 0)
+            { 
+                _unitOfWork.Weights.Remove(weight);
+                _unitOfWork.Save();
+                TempData["success"] = "Weight deleted successfully";
+            }
+            else
+            {
+                weight.Value = value;
+                _unitOfWork.Weights.Update(weight);
+                _unitOfWork.Save();
+                TempData["success"] = "Weight updated successfully";
+            }
+            return Ok();
+        }
+
+        public IActionResult GetAllAppointments(int id)
+        {
+            var events = _unitOfWork.Appointments.GetAppointmentsWithAllData(id)
+                .Select(e => new Event
+                {
+                    EventId = e.Id,
+                    Title = e.Description,
+                    Description = e.Description,
+                    Start = e.Date.ToString("yyyy-MM-dd HH:mm")
+                });
+
+            return new JsonResult(events);
         }
     }
 }

@@ -4,12 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - DogVetSystem_Razor</title>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DogVetSystem_Razor.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+    
 
 </head>
 <body>
@@ -23,10 +24,13 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Employee" asp-controller="Animal" asp-action="Index">Animals</a>
-                        </li>
 
+                        @if (User.IsInRole(UserRole.Role_Admin) || User.IsInRole(UserRole.Role_Employee))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Employee" asp-controller="Animal" asp-action="Index">Animals</a>
+                            </li>
+                        }
 
                         @if (User.IsInRole(UserRole.Role_Admin))
                         {

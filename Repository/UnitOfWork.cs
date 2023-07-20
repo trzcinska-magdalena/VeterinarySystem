@@ -16,6 +16,7 @@ namespace VeterinarySystem.Repository
         public IRepository<Vet> Vets { get; private set; }
         public IRepository<Specialisation> Specialisations { get; private set; }
         public IRepository<VetSpecialisation> VetSpecialisations { get; private set; }
+        public IRepository<AppointmentVet> AppointmentVets { get; private set; }
         public IAppointmentRepository Appointments { get; private set; }
 
         public UnitOfWork(VeterinarySystemContext db)
@@ -31,6 +32,7 @@ namespace VeterinarySystem.Repository
             Vets = new Repository<Vet>(_db);
             Specialisations = new Repository<Specialisation>(_db);
             VetSpecialisations = new Repository<VetSpecialisation>(_db);
+            AppointmentVets = new Repository<AppointmentVet>(_db);
         }
 
         public void Save()

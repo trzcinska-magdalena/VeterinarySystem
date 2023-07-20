@@ -2,11 +2,10 @@
 
 <div class="container mt-3">
     <div class="row">
-        <div class="col-5 col-md-4 col-lg-3">
-            <div class="card border-primary mb-3">
-                <div class="card-header"></div>
+        <div class="col d-flex">
+            <div class="card border-secondary">
+                <div class="card-header bg-secondary text-white"><h5 class="m-0">@Model.Animal.Name</h5></div>
                 <div class="card-body">
-                    <h4 class="card-title">@Model.Animal.Name</h4>
                     <p class="card-text">
                         Birth date: @Model.Animal.BirthDate.ToString("yyyy-MM-dd") <br />
                         Breed: @Model.Animal.Breed.Name <br />
@@ -14,28 +13,51 @@
                     </p>
                 </div>
             </div>
+
+            <div class="d-flex flex-column">
+                <div class="mt-auto">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item" role="presentation" onclick="loadCalendar()">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#appointment" role="tab">
+                                <i class="bi bi-calendar-week-fill me-1"></i>
+                                <span class="d-none d-md-inline">Appointments</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#weight" role="tab">
+                                <i class="bi bi-stopwatch-fill me-1"></i>
+                                <span class="d-none d-md-inline">Weights</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#vaccination" role="tab">
+                                <i class="bi bi-capsule-pill me-1"></i>
+                                <span class="d-none d-md-inline">Vaccinations</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-5 col-md-4 col-lg-3">
-            <ul class="nav nav-tabs flex-column w-75" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#weight" aria-selected="true" role="tab" tabindex="-1">Weights</a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" data-bs-toggle="tab" href="#vaccination" aria-selected="false" role="tab">Vaccinations</a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" data-bs-toggle="tab" href="#appointment" aria-selected="false" role="tab">Appointments</a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="col-7">
+    <div class="row mt-3">
+        <div class="col">
             <div id="myTabContent" class="tab-content">
-                <div class="tab-pane fade active show" id="weight" role="tabpanel">
+                <div class="tab-pane fade active show" id="appointment" role="tabpanel">
+                    @if (Model.Animal.Appointments.Count() == 0)
+                    {
+                        <div class="text-center">No data available</div>
+                    }
+                    else
+                    {
+                        <div id="calendar"></div>
+                    }
+                </div>
 
+
+
+                <div class="tab-pane fade" id="weight" role="tabpanel">
                     <form method="post" class="input-group mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewWeight">
                         <input type="date" class="form-control shadow-none" placeholder="Date" asp-for="NewWeight.Date">
                         <input type="text" class="form-control shadow-none" placeholder="Weight" asp-for="NewWeight.Value">
@@ -48,25 +70,10 @@
                     }
                     else
                     {
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Weight</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var weights in Model.Animal.Weights)
-                                {
-                                    <tr>
-                                        <td>@weights.Date.ToString("yyyy-MM-dd")</td>
-                                        <td>@weights.Value</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                        <canvas id="chart"></canvas>
                     }
                 </div>
+
                 <div class="tab-pane fade" id="vaccination" role="tabpanel">
                     <form method="post" class="input-group mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewVaccination">
                         <select class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
@@ -122,6 +129,16 @@
                         </div>
                     }
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*
+
+            <div id="myTabContent" class="tab-content">
+
                 <div class="tab-pane fade" id="appointment" role="tabpanel">
 
                     <form method="post" class="mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewVaccination">
@@ -133,29 +150,29 @@
 
                         @*
                         <div class="input-group row text-center">
-                            <div class="col">
-                                <label for="exampleSelect2" class="form-label">Medicine</label>
+                        <div class="col">
+                        <label for="exampleSelect2" class="form-label">Medicine</label>
 
-                                <select id="exampleSelect2" multiple class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
-                                    <option style="display:none">Name</option>
-                                </select>
-                            </div>
-                            <div class="col">
-                                <label for="exampleSelect2" class="form-label">Medicine</label>
-
-                                <select id="exampleSelect2" multiple class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
-                                    <option style="display:none">Name</option>
-                                </select>
-                            </div>
-                            <div class="col">
-                                <label for="exampleSelect2" class="form-label">Medicine</label>
-
-                                <select id="exampleSelect2" multiple class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
-                                    <option style="display:none">Name</option>
-                                </select>
-                            </div>   
+                        <select id="exampleSelect2" multiple class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
+                        <option style="display:none">Name</option>
+                        </select>
                         </div>
-                        *@
+                        <div class="col">
+                        <label for="exampleSelect2" class="form-label">Medicine</label>
+
+                        <select id="exampleSelect2" multiple class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
+                        <option style="display:none">Name</option>
+                        </select>
+                        </div>
+                        <div class="col">
+                        <label for="exampleSelect2" class="form-label">Medicine</label>
+
+                        <select id="exampleSelect2" multiple class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
+                        <option style="display:none">Name</option>
+                        </select>
+                        </div>
+                        </div>
+
                     </form>
 
                     @if (Model.Animal.Appointments.Count() == 0)
@@ -215,11 +232,78 @@
                             }
                         </div>
                     }
-
-
-
                 </div>
             </div>
         </div>
     </div>
 </div>
+*@
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const datas = JSON.stringify(@Html.Raw(Json.Serialize(Model.Animal.Weights.Select(x=>x.Date.ToString("yyyy-MM-dd")))));
+    const weights = JSON.stringify(@Html.Raw(Json.Serialize(Model.Animal.Weights.Select(x=>x.Value))));
+    const ctx = document.getElementById('chart');
+
+    const config = {
+        type: 'line',
+        data: {
+            labels: JSON.parse(datas),
+            datasets: [{
+                label: "",
+                data: JSON.parse(weights),
+                pointStyle: 'circle',
+                borderColor: '#593196',
+                pointRadius: 5,
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            onClick: function (evt) {
+                const points = chartLine.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                if (points.length) {
+                    const firstPoint = points[0];
+                    const label = chartLine.data.labels[firstPoint.index];
+
+                    var answer = prompt("Enter a new value. To delete - leave blank");
+                    var value = parseInt(answer) ?? 0;
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Employee/Animal/UpdateWeights",
+                        data: { label, value, id: @Model.Animal.Id },
+                        success: function (result) {
+                            window.location.href = "/Employee/Animal/Detail/" + @Model.Animal.Id;
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        }
+                    });
+                }
+            }
+        }
+    }
+    const chartLine = new Chart(ctx, config);
+
+    loadCalendar();
+    function loadCalendar() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'listMonth',
+            navLinks: true,
+            dayMaxEvents: true,
+            events: "/Employee/Animal/GetAllAppointments/" + @Model.Animal.Id,
+            eventClick: function (event) {
+                console.log(event);
+            },
+        });
+        calendar.render();
+    };
+
+</script>

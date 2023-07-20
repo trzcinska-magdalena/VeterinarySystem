@@ -9,10 +9,11 @@
     <div class="row">
         <div class="col d-flex">
             <div class="photo border me-3" style="height: 150px; width: 150px">
+                <img src="@Model.Input.Photo" alt="Photo" style="width:100%; height: 100%" />
             </div>
 
             <div class="d-flex flex-column">
-                <h5>@Model.Input.FullName</h5>
+                <h5>@Model.Input.Vet.FirstName @Model.Input.Vet.LastName</h5>
 
                 <div class="mt-auto">
                     <ul class="nav nav-tabs" role="tablist">
@@ -100,29 +101,23 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    loadCalendar();
+
+    function loadCalendar() {
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             navLinks: true,
             headerToolbar: {
-                left: 'prev,next,listYear',
+                left: 'prev,next',
                 center: 'title',
                 right: 'dayGridMonth,dayGridWeek,dayGridDay'
             },
             dayMaxEvents: true,
-                 
-            events: [
-                {
-                    title: 'Meeting',
-                    start: '2023-08-12',
-                    backgroundColor: 'green',
-                }
-            ],
+            events: "/Identity/Account/Manage?handler=AllEvents"
         });
         calendar.render();
-    });
-
+    };
 
     document.getElementById("changePassword").addEventListener("click", () => {
         console.log("click");

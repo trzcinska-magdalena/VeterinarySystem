@@ -17,6 +17,10 @@ html {
     min-height: 100%;
 }
 
+a {
+    text-decoration: none;
+}
+
 body {
     margin-bottom: 60px;
 }

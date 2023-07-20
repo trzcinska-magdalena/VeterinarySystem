@@ -7,7 +7,7 @@
         <thead>
             <tr>
                 <th scope="col">Name</th>
-                <th></th>
+                <th style="width: 150px"></th>
             </tr>
         </thead>
         <tbody>
@@ -17,7 +17,7 @@
                 <td class="bg-secondary-subtle">
                     <input asp-for="NewBreed.Name" type="text" class="form-control shadow-none">
                 </td>
-                <td class="bg-secondary-subtle">
+                <td class="bg-secondary-subtle text-end">
                     <button type="submit" class="btn btn-sm btn-primary m-1">Add</button>
                 </td>
             </tr>
@@ -30,7 +30,7 @@
                         <input asp-for="@breed.Id" name="Id" type="text" class="form-control shadow-none" hidden>
                         <input asp-for="@breed.Name" name="Name" type="text" class="form-control shadow-none">
                     </td>
-                    <td>
+                    <td class="text-end">
                         <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="UpdateBreed">Save</button>
                         <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="DeleteBreed">Delete</button>
                     </td>

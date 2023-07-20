@@ -2,14 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using VeterinarySystem.Data;
+using Microsoft.JSInterop;
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
 using VeterinarySystem.Repository.IRepository;
@@ -37,15 +33,15 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
         [BindProperty]
         public AccountManageViewModel Input { get; set; }
 
-        private AccountManageViewModel LoadModelView(IdentityUser user, Vet vet)
+        private void LoadModelView(IdentityUser user, Vet vet)
         {
             Input = new AccountManageViewModel
             {
-                FullName = $"{vet.FirstName} {vet.LastName}",
+                Vet = vet,
                 Username = user.UserName,
-                VetSpecialisations = _unitOfWork.VetSpecialisations.GetAll(e => e.Specialisation).Where(e => e.VetId == vet.Id).OrderByDescending(e => e.DateFrom).ToList(),
+                Photo = "data:image/png;base64," + Convert.ToBase64String(vet.Photo, 0, vet.Photo.Length),
+            VetSpecialisations = _unitOfWork.VetSpecialisations.GetAll(e => e.Specialisation).Where(e => e.VetId == vet.Id).OrderByDescending(e => e.DateFrom).ToList()
             };
-            return Input;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -63,6 +59,7 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
             }
 
             LoadModelView(user, vet);
+
             return Page();
         }
 
@@ -95,6 +92,20 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
             TempData["success"] = "Your password has been changed.";
             LoadModelView(user, vet);
             return RedirectToPage();
+        }
+
+        public IActionResult OnGetAllEvents()
+        {
+            var events = _unitOfWork.AppointmentVets.GetAll(x=>x.Appointment)
+                .Where(e=>e.VetId == 2)
+                .Select(e=> new Event
+                {
+                    EventId = e.Appointment.Id,
+                    Title = _unitOfWork.Animals.Get(x=>x.Id == e.Appointment.AnimalId).Name,
+                    Description = e.Appointment.Description,
+                    Start = e.Appointment.Date.ToString("yyyy-MM-dd HH:mm")
+                });
+            return new JsonResult(events);
         }
     }
 }

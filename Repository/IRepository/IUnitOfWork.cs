@@ -14,6 +14,7 @@ namespace VeterinarySystem.Repository.IRepository
         IRepository<Vet> Vets { get; }
         IRepository<Specialisation> Specialisations { get; }
         IRepository<VetSpecialisation> VetSpecialisations { get; }
+        IRepository<AppointmentVet> AppointmentVets { get; }
 
         void Save();
     }

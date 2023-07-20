@@ -8,6 +8,8 @@
 
         public string LastName { get; set; } = null!;
 
+        public byte[] Photo { get; set; }
+
         public string ApplicationUserId { get; set; }
 
         public virtual ApplicationUser ApplicationUser { get; set; }

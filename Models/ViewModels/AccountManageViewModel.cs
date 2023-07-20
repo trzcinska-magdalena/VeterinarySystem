@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using VeterinarySystem.Models.Db;
@@ -8,9 +9,11 @@ namespace VeterinarySystem.Models.ViewModels
     public class AccountManageViewModel
     {
         [ValidateNever]
-        public string FullName { get; set; } = null!;
+        public Vet Vet { get; set; } = null!;
         [ValidateNever]
         public string Username { get; set; } = null!;
+        [ValidateNever]
+        public string Photo { get; set; }
 
         [ValidateNever]
         public IEnumerable<VetSpecialisation> VetSpecialisations { get; set; } = null!;
@@ -30,5 +33,15 @@ namespace VeterinarySystem.Models.ViewModels
         [Display(Name = "Confirm new password")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+    }
+
+    public class Event
+    {
+        public int EventId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string Start { get; set; }
+        public string End { get; set; }
+        public bool AllDay { get; set; }
     }
 }

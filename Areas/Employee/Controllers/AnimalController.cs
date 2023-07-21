@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using VeterinarySystem.Data;
 using VeterinarySystem.Models.Db;
@@ -54,6 +55,26 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 }),
 
                 Vaccinations = _unitOfWork.Vaccinations.GetAll().GroupBy(a => a.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList()),
+
+                Medicines = _unitOfWork.Medicines.GetAll().Select(a =>
+                new SelectListItem
+                {
+                    Value = a.Id.ToString(),
+                    Text = a.Name
+                }),
+                Surgeries = _unitOfWork.Surgeries.GetAll().Select(a =>
+                new SelectListItem
+                {
+                    Value = a.Id.ToString(),
+                    Text = a.Name
+                }),
+                Vets = _unitOfWork.Vets.GetAll().Select(a =>
+                new SelectListItem
+                {
+                    Value = a.Id.ToString(),
+                    Text = $"{a.FirstName} {a.LastName}"
+                }),
+
             };
             return animalDetailViewModel;
         }
@@ -182,6 +203,23 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             return RedirectToAction("Detail", new { id });
         }
 
+        public IActionResult AddNewAppointment(int? id, Appointment newAppointment)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            newAppointment.Animal = _unitOfWork.Animals.Get(e => e.Id == id);
+
+            if (newAppointment.Date != new DateTime(0001, 01, 01, 00, 00, 00) && string.IsNullOrEmpty(newAppointment.Description))
+            {
+                _unitOfWork.Appointments.Add(newAppointment);
+                _unitOfWork.Save();
+                TempData["success"] = "Appointment added successfully";
+            }
+            return RedirectToAction("Detail", new { id });
+        }
+
         public IActionResult UpdateWeights(string label, int value, int id)
         {
             var weight = _unitOfWork.Weights.Get(e => e.AnimalId == id && e.Date == DateTime.Parse(label));
@@ -207,7 +245,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             var events = _unitOfWork.Appointments.GetAppointmentsWithAllData(id)
                 .Select(e => new Event
                 {
-                    EventId = e.Id,
+                    Id = e.Id,
                     Title = e.Description,
                     Description = e.Description,
                     Start = e.Date.ToString("yyyy-MM-dd HH:mm")

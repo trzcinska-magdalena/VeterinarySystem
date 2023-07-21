@@ -11,11 +11,22 @@ namespace VeterinarySystem.Models.ViewModels
         public Weight NewWeight { get; set; } = null!;
         public Vaccination NewVaccination { get; set; } = null!;
 
+        public Appointment NewAppointment { get; set; } = null!;
+
         [ValidateNever]
         public IEnumerable<Appointment> Appointments { get; set; } = null!;
         [ValidateNever]
         public IEnumerable<SelectListItem> TypeOfVaccines { get; set; } = null!;
         [ValidateNever]
         public Dictionary<string, List<Vaccination>> Vaccinations { get; set; } = null!;
+
+        [ValidateNever]
+        public IEnumerable<SelectListItem> Medicines { get; set; } = null!;
+
+        [ValidateNever]
+        public IEnumerable<SelectListItem> Surgeries { get; set; } = null!;
+
+        [ValidateNever]
+        public IEnumerable<SelectListItem> Vets { get; set; } = null!;
     }
 }

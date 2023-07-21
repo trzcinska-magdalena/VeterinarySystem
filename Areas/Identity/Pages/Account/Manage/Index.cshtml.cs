@@ -100,7 +100,7 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
                 .Where(e=>e.VetId == 2)
                 .Select(e=> new Event
                 {
-                    EventId = e.Appointment.Id,
+                    Id = e.Appointment.Id,
                     Title = _unitOfWork.Animals.Get(x=>x.Id == e.Appointment.AnimalId).Name,
                     Description = e.Appointment.Description,
                     Start = e.Appointment.Date.ToString("yyyy-MM-dd HH:mm")

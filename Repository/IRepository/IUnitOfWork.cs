@@ -10,6 +10,8 @@ namespace VeterinarySystem.Repository.IRepository
         IRepository<Weight> Weights { get; }
         IRepository<TypeOfVaccine> TypeOfVaccines { get; }
         IRepository<Vaccination> Vaccinations { get; }
+        IRepository<Medicine> Medicines { get; }
+        IRepository<Surgery> Surgeries { get; }
         IAppointmentRepository Appointments { get; }
         IRepository<Vet> Vets { get; }
         IRepository<Specialisation> Specialisations { get; }

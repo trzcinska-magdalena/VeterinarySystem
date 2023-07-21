@@ -15,6 +15,8 @@ namespace VeterinarySystem.Repository
         public IRepository<Vaccination> Vaccinations { get; private set; }
         public IRepository<Vet> Vets { get; private set; }
         public IRepository<Specialisation> Specialisations { get; private set; }
+        public IRepository<Medicine> Medicines { get; private set; }
+        public IRepository<Surgery> Surgeries { get; private set; }
         public IRepository<VetSpecialisation> VetSpecialisations { get; private set; }
         public IRepository<AppointmentVet> AppointmentVets { get; private set; }
         public IAppointmentRepository Appointments { get; private set; }
@@ -28,6 +30,8 @@ namespace VeterinarySystem.Repository
             Weights = new Repository<Weight>(_db);
             TypeOfVaccines = new Repository<TypeOfVaccine>(_db);
             Vaccinations = new Repository<Vaccination>(_db);
+            Surgeries = new Repository<Surgery>(_db);
+            Medicines = new Repository<Medicine>(_db);
             Appointments = new AppointmentRepository(_db);
             Vets = new Repository<Vet>(_db);
             Specialisations = new Repository<Specialisation>(_db);

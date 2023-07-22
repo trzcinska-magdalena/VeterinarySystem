@@ -8,7 +8,6 @@ namespace VeterinarySystem.Models
     {
         [Required]
         public int Name { get; set; }
-
-        public virtual Vet Vet { get; set; }
+        public virtual Vet Vet { get; set; } = null!;
     }
 }

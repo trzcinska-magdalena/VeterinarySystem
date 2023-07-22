@@ -6,29 +6,11 @@ namespace VeterinarySystem.Models.ViewModels
     public class BaseManagementViewModel
     { 
         [ValidateNever]
-        public IEnumerable<Vet> Vets { get; set; }
-        public Vet NewVet { get; set; }
+        public IEnumerable<Vet> Vets { get; set; } = new List<Vet>();
+        public Vet NewVet { get; set; } = null!;
 
         [ValidateNever]
-        public IEnumerable<Breed> Breeds { get; set; }
-        public Breed NewBreed { get; set; }
-
-        [ValidateNever]
-        public IEnumerable<Medicine> Medicines { get; set; }
-        public Medicine NewMedicine { get; set; }
-
-        [ValidateNever]
-        public IEnumerable<Specialisation> Specialisations { get; set; }
-        public Specialisation NewSpecialisation { get; set; }
-
-        [ValidateNever]
-        public IEnumerable<Surgery> Surgerys { get; set; }
-        public Surgery NewSurgery { get; set; }
-
-        [ValidateNever]
-        public IEnumerable<TypeOfVaccine> TypeOfVaccines { get; set; }
-        public TypeOfVaccine NewTypeOfVaccine { get; set; }
-
-
+        public IEnumerable<Breed> Breeds { get; set; } = new List<Breed>();
+        public Breed NewBreed { get; set; } = null!;
     }
 }

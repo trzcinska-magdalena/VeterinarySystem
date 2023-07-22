@@ -10,7 +10,6 @@ namespace VeterinarySystem.Models.ViewModels
         public Animal? Animal { get; set; } = null!;
         public Weight NewWeight { get; set; } = null!;
         public Vaccination NewVaccination { get; set; } = null!;
-
         public Appointment NewAppointment { get; set; } = null!;
 
         [ValidateNever]
@@ -28,5 +27,8 @@ namespace VeterinarySystem.Models.ViewModels
 
         [ValidateNever]
         public IEnumerable<SelectListItem> Vets { get; set; } = null!;
+
+        [ValidateNever]
+        public Appointment Appointment { get; set; } = null!;
     }
 }

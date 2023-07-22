@@ -5,6 +5,6 @@ namespace VeterinarySystem.Models.ViewModels
     public class AnimalViewModel
     {
         public IEnumerable<Animal> Animals = new List<Animal>();
-        public string SearchString { get; set; }
+        public string? SearchString { get; set; }
     }
 }

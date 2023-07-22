@@ -9,8 +9,8 @@ namespace VeterinarySystem.Models.ViewModels
         public Animal Animal { get; set; } = null!;
 
         [ValidateNever]
-        public IEnumerable<SelectListItem> Clients { get; set; } = null!;
+        public IEnumerable<SelectListItem> Clients { get; set; } = new List<SelectListItem>();
         [ValidateNever]
-        public IEnumerable<SelectListItem> Breeds { get; set; } = null!;
+        public IEnumerable<SelectListItem> Breeds { get; set; } = new List<SelectListItem>();
     }
 }

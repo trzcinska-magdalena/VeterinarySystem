@@ -1,12 +1,16 @@
-﻿function loadCalendarOfAppointments() {
-    var calendarEl = document.getElementById("calendar");
-    var calendar = new FullCalendar.Calendar(calendarEl, {
+﻿function loadAnimalAppointmentsCalendar(animalId) {
+    const calendarEl = document.getElementById("animal-appointments-calendar");
+    if (!calendarEl) {
+        console.error("Calendar element not found.")
+    }
+    const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "listMonth",
         navLinks: true,
         dayMaxEvents: true,
         headerToolbar: {
             center: "addEventButton"
         },
+        
         customButtons: {
             addEventButton: {
                 text: "Add appointment",
@@ -17,11 +21,42 @@
         },
         events: "/Employee/Animal/GetAllAppointments/" + animalId,
         eventClick: function (info) {
-            //info.event.id;
-            $("#exampleModal").modal("show");
+            console.log(info.event.id);
+
+            $.ajax({
+                type: "GET",
+                url: "/Employee/Animal/ShowAppointmentInfo",
+                data: {
+                    id: info.event.id
+                },
+                success: function (result) {
+                    console.log(result);
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+            $("#detailEventModal").modal("show");
         },
     });
     calendar.render();
 };
 
-loadCalendarOfAppointments();
+function loadVetAppointmentsCalendar() {
+    const calendarEl = document.getElementById('vet-appointments-calendar');
+    if (!calendarEl) {
+        console.error("Calendar element not found.")
+    }
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        navLinks: true,
+        headerToolbar: {
+            left: 'prev,next',
+            center: 'title',
+            right: 'dayGridMonth,dayGridWeek,dayGridDay'
+        },
+        dayMaxEvents: true,
+        events: "/Identity/Account/Manage?handler=AllEvents"
+    });
+    calendar.render();
+};

@@ -34,14 +34,4 @@ namespace VeterinarySystem.Models.ViewModels
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }
-
-    public class Event
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Start { get; set; }
-        public string End { get; set; }
-        public bool AllDay { get; set; }
-    }
 }

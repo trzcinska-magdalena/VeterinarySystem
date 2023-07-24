@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.JSInterop;
+using VeterinarySystem.Models;
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
 using VeterinarySystem.Repository.IRepository;
@@ -33,18 +34,19 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
         [BindProperty]
         public AccountManageViewModel Input { get; set; }
 
-        private void LoadModelView(IdentityUser user, Vet vet)
+        private async Task LoadModelView(IdentityUser user, Vet vet)
         {
+            var vetSpecialisations = await _unitOfWork.VetSpecialisations.GetAllAsync(e => e.Specialisation);
             Input = new AccountManageViewModel
             {
                 Vet = vet,
                 Username = user.UserName,
-                Photo = "data:image/png;base64," + Convert.ToBase64String(vet.Photo, 0, vet.Photo.Length),
-            VetSpecialisations = _unitOfWork.VetSpecialisations.GetAll(e => e.Specialisation).Where(e => e.VetId == vet.Id).OrderByDescending(e => e.DateFrom).ToList()
+                Photo = vet.Photo != null ? "data:image/png;base64," + Convert.ToBase64String(vet.Photo, 0, vet.Photo.Length) : "",
+                VetSpecialisations = vetSpecialisations.Where(e => e.VetId == vet.Id).OrderByDescending(e => e.DateFrom).ToList()
             };
         }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGet()
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -52,18 +54,18 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
-            var vet = _unitOfWork.Vets.Get(e => e.ApplicationUserId == user.Id);
+            var vet = await _unitOfWork.Vets.GetAsync(e => e.ApplicationUserId == user.Id);
             if (vet == null)
             {
                 return NotFound();
             }
 
-            LoadModelView(user, vet);
+            await LoadModelView(user, vet);
 
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPost()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -71,7 +73,7 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var vet = _unitOfWork.Vets.Get(e => e.ApplicationUserId == user.Id);
+            var vet = await _unitOfWork.Vets.GetAsync(e => e.ApplicationUserId == user.Id);
             if (!ModelState.IsValid)
             {
                 LoadModelView(user, vet);
@@ -94,14 +96,15 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
             return RedirectToPage();
         }
 
-        public IActionResult OnGetAllEvents()
+        public async Task<IActionResult> OnGetAllEventsAsync()
         {
-            var events = _unitOfWork.AppointmentVets.GetAll(x=>x.Appointment)
-                .Where(e=>e.VetId == 2)
+            var appointmentVets = await _unitOfWork.AppointmentVets.GetAllAsync(x => x.Appointment);
+            var animal = await _unitOfWork.Animals.GetAllAsync();
+            var events = appointmentVets.Where(e=>e.VetId == 2)
                 .Select(e=> new Event
                 {
                     Id = e.Appointment.Id,
-                    Title = _unitOfWork.Animals.Get(x=>x.Id == e.Appointment.AnimalId).Name,
+                    Title = animal.Where(x => x.Id == e.Appointment.AnimalId).Select(e=>e.Name).First(),
                     Description = e.Appointment.Description,
                     Start = e.Appointment.Date.ToString("yyyy-MM-dd HH:mm")
                 });

@@ -7,10 +7,10 @@ namespace VeterinarySystem.Models.ViewModels
     public class AnimalDetailViewModel
     {
         [ValidateNever]
-        public Animal? Animal { get; set; } = null!;
-        public Weight NewWeight { get; set; } = null!;
-        public Vaccination NewVaccination { get; set; } = null!;
-        public Appointment NewAppointment { get; set; } = null!;
+        public Animal Animal { get; set; } = null!;
+        public Weight? NewWeight { get; set; }
+        public Vaccination? NewVaccination { get; set; }
+        public Appointment? NewAppointment { get; set; }
 
         [ValidateNever]
         public IEnumerable<Appointment> Appointments { get; set; } = null!;

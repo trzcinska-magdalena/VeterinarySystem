@@ -1,7 +1,5 @@
 ﻿@model BaseManagementViewModel
 
-
-
 <div class="container justify-content-center">
     <table class="table table-hover mt-3">
         <thead>
@@ -11,18 +9,17 @@
             </tr>
         </thead>
         <tbody>
-
-            <form method="post" asp-action="AddNewBreed">
+            <form method="post">
             <tr>
                 <td class="bg-secondary-subtle">
                     <input asp-for="NewBreed.Name" type="text" class="form-control shadow-none">
                 </td>
                 <td class="bg-secondary-subtle text-end">
-                    <button type="submit" class="btn btn-sm btn-primary m-1">Add</button>
+                    <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="AddNewBreed">Add</button>
                 </td>
             </tr>
             </form>
-            @foreach (var breed in Model.Breeds)
+            @foreach (var breed in Model.Breeds.OrderBy(e=>e.Name))
             {
                 <form method="post">
                 <tr>

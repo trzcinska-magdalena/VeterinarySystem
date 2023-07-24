@@ -24,6 +24,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             var breeds = await _unitOfWork.Breeds.GetAllAsync();
             var clients = await _unitOfWork.Clients.GetAllAsync();
+
             var animalCreateViewModel = new AnimalCreateViewModel
             {
                 Breeds = breeds.Select(breed =>
@@ -65,19 +66,20 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 Value = a.Id.ToString(),
                 Text = a.Name
             });
+
             animalDetailViewModel.Surgeries = surgeries.Select(a =>
             new SelectListItem
             {
                 Value = a.Id.ToString(),
                 Text = a.Name
             });
+
             animalDetailViewModel.Vets = vets.Select(a =>
                 new SelectListItem
                 {
                     Value = a.Id.ToString(),
                     Text = $"{a.FirstName} {a.LastName}"
                 });
-
 
             return animalDetailViewModel;
         }
@@ -106,24 +108,21 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             return View(animalViewModel);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View(ConstructAnimalCreateVMAsync());
+            return View(await ConstructAnimalCreateVMAsync());
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateAsync(Animal animal)
-        {
-            var client = await _unitOfWork.Clients.GetAsync(e => e.Id == animal.ClientId);
-            var breed = await _unitOfWork.Breeds.GetAsync(e => e.Id == animal.BreedId);
-
-            if (client == null || breed == null || !ModelState.IsValid)
+        {     
+            if (!ModelState.IsValid)
             {
-                return View(ConstructAnimalCreateVMAsync());
+                return View(await ConstructAnimalCreateVMAsync());
             }
 
-            animal.Client = client;
-            animal.Breed = breed;
+            animal.ClientId = animal.Client.Id;
+            animal.BreedId = animal.Breed.Id;
 
             _unitOfWork.Animals.Add(animal);
             await _unitOfWork.SaveAsync();
@@ -145,11 +144,11 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 return NotFound();
             }
 
-            var animalDetailModel = ConstructAnimalDetailVMAsync();
-            animalDetailModel.Result.Animal = animal;
-            animalDetailModel.Result.Appointments = await _unitOfWork.Appointments.GetAppointmentsWithAllData((int)id);
+            var animalDetailModel = await ConstructAnimalDetailVMAsync();
+            animalDetailModel.Animal = animal;
+            animalDetailModel.Appointments = await _unitOfWork.Appointments.GetAppointmentsWithAllData((int)id);
 
-            return View(animalDetailModel.Result);
+            return View(animalDetailModel);
         }
 
         public async Task<IActionResult> AddNewWeightAsync(int? id, Weight newWeight)
@@ -165,19 +164,13 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 return NotFound();
             }
 
-            newWeight.Animal = animal;
-
-            if (newWeight.Date < DateTime.Now)
+            if(newWeight.Value <= 0 || newWeight.Date == default)
             {
-                TempData["warning"] = "The entered date is earlier than today's date";
-
+                TempData["warning"] = "Invalid weight value or date";
             }
-            else if (newWeight.Date > DateTime.Now)
+            else
             {
-                TempData["warning"] = "The entered date is later than today's date";
-            }
-            if (newWeight.Value > 0 && newWeight.Date != new DateTime(0001, 01, 01, 00, 00, 00))
-            {
+                newWeight.Animal = animal;
                 _unitOfWork.Weights.Add(newWeight);
                 await _unitOfWork.SaveAsync();
                 TempData["success"] = "Weight added successfully";
@@ -191,10 +184,14 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             {
                 return NotFound();
             }
-            newVaccination.Animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id);
-
-            if (newVaccination.TypeOfVaccineId != 0 && newVaccination.Date != new DateTime(0001, 01, 01, 00, 00, 00) && newVaccination.ExpiryDate != new DateTime(0001, 01, 01, 00, 00, 00))
+         
+            if(newVaccination.TypeOfVaccineId == 0 && newVaccination.Date == default && newVaccination.ExpiryDate == default)
             {
+                TempData["warning"] = "Invalid type of vaccine or date";
+            }
+            else
+            {
+                newVaccination.Animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id);
                 newVaccination.TypeOfVaccine = await _unitOfWork.TypeOfVaccines.GetAsync(e => e.Id == newVaccination.TypeOfVaccine.Id);
 
                 _unitOfWork.Vaccinations.Add(newVaccination);
@@ -210,10 +207,14 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             {
                 return NotFound();
             }
-            newAppointment.Animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id);
 
-            if (newAppointment.Date != new DateTime(0001, 01, 01, 00, 00, 00) && string.IsNullOrEmpty(newAppointment.Description))
+            if (newAppointment.Date == default || string.IsNullOrEmpty(newAppointment.Description))
             {
+                TempData["warning"] = "Invalid description or date";
+            }
+            else
+            {
+                newAppointment.Animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id);
                 _unitOfWork.Appointments.Add(newAppointment);
                 await _unitOfWork.SaveAsync();
                 TempData["success"] = "Appointment added successfully";

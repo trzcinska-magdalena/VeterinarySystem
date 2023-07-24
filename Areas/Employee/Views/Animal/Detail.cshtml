@@ -1,10 +1,11 @@
 ﻿@model AnimalDetailViewModel
 
+
 <div class="container mt-3">
     <div class="row">
         <div class="col d-flex">
-            <div class="card border-secondary">
-                <div class="card-header bg-secondary text-white"><h5 class="m-0">@Model.Animal.Name</h5></div>
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white"><h5 class="m-0">@Model.Animal.Name</h5></div>
                 <div class="card-body">
                     <p class="card-text">
                         Birth date: @Model.Animal.BirthDate.ToString("yyyy-MM-dd") <br />
@@ -17,7 +18,7 @@
             <div class="d-flex flex-column">
                 <div class="mt-auto">
                     <ul class="nav nav-tabs" role="tablist">
-                        <li class="nav-item" role="presentation" onclick="loadCalendar()">
+                        <li class="nav-item" role="presentation">
                             <a class="nav-link active" data-bs-toggle="tab" href="#appointment" role="tab">
                                 <i class="bi bi-calendar-week-fill me-1"></i>
                                 <span class="d-none d-md-inline">Appointments</span>
@@ -51,11 +52,9 @@
                     }
                     else
                     {
-                        <div id="calendar"></div>
+                        <div id="animal-appointments-calendar"></div>
                     }
                 </div>
-
-
 
                 <div class="tab-pane fade" id="weight" role="tabpanel">
                     <form method="post" class="input-group mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewWeight">
@@ -136,51 +135,6 @@
 
 
 @*
-
-            <div id="myTabContent" class="tab-content">
-
-                <div class="tab-pane fade" id="appointment" role="tabpanel">
-
-                    <form method="post" class="mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewVaccination">
-                        <div class="input-group">
-                            <input type="date" class="form-control shadow-none" placeholder="Date" asp-for="NewVaccination.Date">
-                            <input type="text" class="form-control shadow-none" placeholder="Description" asp-for="NewVaccination.ExpiryDate">
-                            <button class="btn btn-primary" type="submit" id="button-add">Add</button>
-                        </div>
-
-                        @*
-                        <div class="input-group row text-center">
-                        <div class="col">
-                        <label for="exampleSelect2" class="form-label">Medicine</label>
-
-                        <select id="exampleSelect2" multiple class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
-                        <option style="display:none">Name</option>
-                        </select>
-                        </div>
-                        <div class="col">
-                        <label for="exampleSelect2" class="form-label">Medicine</label>
-
-                        <select id="exampleSelect2" multiple class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
-                        <option style="display:none">Name</option>
-                        </select>
-                        </div>
-                        <div class="col">
-                        <label for="exampleSelect2" class="form-label">Medicine</label>
-
-                        <select id="exampleSelect2" multiple class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
-                        <option style="display:none">Name</option>
-                        </select>
-                        </div>
-                        </div>
-
-                    </form>
-
-                    @if (Model.Animal.Appointments.Count() == 0)
-                    {
-                        <div class="text-center">No data available</div>
-                    }
-                    else
-                    {
                         <div class="accordion">
                             @foreach (var appointment in Model.Appointments)
                             {
@@ -231,79 +185,86 @@
                                 </div>
                             }
                         </div>
-                    }
-                </div>
+*@
+
+<div class="modal" id="detailEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    @if(Model.Appointment != null) {
+                        @Model.Appointment.Description
+                    }                
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
 </div>
-*@
 
+<div class="modal" id="addEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add new appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" class="mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewAppointment">
+                    <div class="input-group">
+                        <input type="date" class="form-control shadow-none" placeholder="Date" asp-for="NewAppointment.Date">
+                        <input type="text" class="form-control shadow-none" placeholder="Description" asp-for="NewAppointment.Description">
+                    </div>
+
+                    <div>
+                        <div class="mb-3">
+                            <label for="exampleSelect2" class="form-label">Medicine</label>
+                            <select id="exampleSelect2" multiple class="form-select" asp-items="Model.Medicines" asp-for="NewVaccination.TypeOfVaccineId">
+                                <option style="display:none">Name</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleSelect2" class="form-label">Surgery</label>
+                            <select id="exampleSelect2" multiple class="form-select" asp-items="Model.Surgeries" asp-for="NewVaccination.TypeOfVaccineId">
+                                <option style="display:none">Name</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleSelect2" class="form-label">Vet</label>
+                            <select id="exampleSelect2" multiple class="form-select" asp-items="Model.Vets" asp-for="NewVaccination.TypeOfVaccineId">
+                                <option style="display:none">Name</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/js/charts.js"></script>
+<script src="~/js/calendars.js"></script>
 <script>
-    const datas = JSON.stringify(@Html.Raw(Json.Serialize(Model.Animal.Weights.Select(x=>x.Date.ToString("yyyy-MM-dd")))));
-    const weights = JSON.stringify(@Html.Raw(Json.Serialize(Model.Animal.Weights.Select(x=>x.Value))));
-    const ctx = document.getElementById('chart');
+    var datesOfWeightsChart = JSON.stringify(@Html.Raw(Json.Serialize(Model.Animal.Weights.Select(x=>x.Date.ToString("yyyy-MM-dd")))));
+    var valuesOfWeightChart = JSON.stringify(@Html.Raw(Json.Serialize(Model.Animal.Weights.Select(x=>x.Value))));
+    var animalId = @Model.Animal.Id;
 
-    const config = {
-        type: 'line',
-        data: {
-            labels: JSON.parse(datas),
-            datasets: [{
-                label: "",
-                data: JSON.parse(weights),
-                pointStyle: 'circle',
-                borderColor: '#593196',
-                pointRadius: 5,
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            onClick: function (evt) {
-                const points = chartLine.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-                if (points.length) {
-                    const firstPoint = points[0];
-                    const label = chartLine.data.labels[firstPoint.index];
-
-                    var answer = prompt("Enter a new value. To delete - leave blank");
-                    var value = parseInt(answer) ?? 0;
-
-                    $.ajax({
-                        type: "POST",
-                        url: "/Employee/Animal/UpdateWeights",
-                        data: { label, value, id: @Model.Animal.Id },
-                        success: function (result) {
-                            window.location.href = "/Employee/Animal/Detail/" + @Model.Animal.Id;
-                        },
-                        error: function (error) {
-                            console.error(error);
-                        }
-                    });
-                }
-            }
-        }
-    }
-    const chartLine = new Chart(ctx, config);
-
-    loadCalendar();
-    function loadCalendar() {
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'listMonth',
-            navLinks: true,
-            dayMaxEvents: true,
-            events: "/Employee/Animal/GetAllAppointments/" + @Model.Animal.Id,
-            eventClick: function (event) {
-                console.log(event);
-            },
-        });
-        calendar.render();
-    };
-
+    loadAnimalAppointmentsCalendar(animalId);
+    createWeightsChart(datesOfWeightsChart, valuesOfWeightChart);
 </script>
+
+
+

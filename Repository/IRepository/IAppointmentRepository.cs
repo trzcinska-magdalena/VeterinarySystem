@@ -4,6 +4,6 @@ namespace VeterinarySystem.Repository.IRepository
 {
     public interface IAppointmentRepository : IRepository<Appointment>
     {
-        IEnumerable<Appointment> GetAppointmentsWithAllData(int animalId);
+        Task<IEnumerable<Appointment>> GetAppointmentsWithAllData(int animalId);
     }
 }

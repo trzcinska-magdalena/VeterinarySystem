@@ -20,7 +20,7 @@ namespace VeterinarySystem.Repository
             dbSet.Add(entity);
         }
 
-        public T Get(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
+        public async Task<T> GetAsync(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
             query = query.Where(filter);
@@ -30,10 +30,10 @@ namespace VeterinarySystem.Repository
                 query = query.Include(property);
             }
 
-            return query.FirstOrDefault();
+            return await query.FirstOrDefaultAsync();
         }
 
-        public IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includeProperties)
+        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
 
@@ -42,7 +42,7 @@ namespace VeterinarySystem.Repository
                 query = query.Include(property);
             }
 
-            return query.ToList();
+            return await query.ToListAsync();
         }
 
         public void Remove(T entity)

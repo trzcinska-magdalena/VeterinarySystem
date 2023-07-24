@@ -13,16 +13,16 @@ namespace VeterinarySystem.Repository
             _context = context;
         }
 
-        public IEnumerable<Appointment> GetAppointmentsWithAllData(int animalId)
+        public async Task<IEnumerable<Appointment>> GetAppointmentsWithAllData(int animalId)
         {
-            return _context.Appointments
+            return await _context.Appointments
                 .Include(e => e.AppointmentMedicines)
                 .ThenInclude(e => e.Medicine)
                 .Include(e => e.AppointmentSurgeries)
                 .ThenInclude(e => e.Surgery)
                 .Include(e => e.AppointmentVets)
                 .ThenInclude(e => e.Vet)
-                .Where(e => e.AnimalId == animalId);
+                .Where(e => e.AnimalId == animalId).ToListAsync();
         }
     }
 }

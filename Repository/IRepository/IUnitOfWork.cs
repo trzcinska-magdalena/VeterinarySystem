@@ -18,6 +18,6 @@ namespace VeterinarySystem.Repository.IRepository
         IRepository<VetSpecialisation> VetSpecialisations { get; }
         IRepository<AppointmentVet> AppointmentVets { get; }
 
-        void Save();
+        Task SaveAsync();
     }
 }

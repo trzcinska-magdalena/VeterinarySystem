@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Security.Principal;
 using VeterinarySystem.Data;
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
@@ -21,82 +19,82 @@ namespace VeterinarySystem.Areas.Admin.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        public BaseManagementViewModel ConstructBaseManagementVM()
+        public async Task<BaseManagementViewModel> ConstructBaseManagementVMAsync()
         {
             var baseManagementViewModel = new BaseManagementViewModel
             {
-                Breeds = _unitOfWork.Breeds.GetAll()
+                Breeds = await _unitOfWork.Breeds.GetAllAsync()
             };
             return baseManagementViewModel;
         }
         public IActionResult Index(string type)
         {
-            return View(ConstructBaseManagementVM());
+            return View(ConstructBaseManagementVMAsync());
         }
 
         [HttpPost]
-        public IActionResult AddNewBreed(Breed newBreed)
+        public async Task<IActionResult> AddNewBreedAsync(Breed newBreed)
         {
-            if (_unitOfWork.Breeds.GetAll().Any(e => e.Name == newBreed.Name))
+            var breeds = await _unitOfWork.Breeds.GetAllAsync();
+            if (breeds.Any(e => e.Name == newBreed.Name))
             {
                 TempData["error"] = "This breed exist!";
-                return View("Index", ConstructBaseManagementVM());
+                return View("Index", ConstructBaseManagementVMAsync());
             }
             if (!ModelState.IsValid)
             {
-                return View("Index", ConstructBaseManagementVM());
+                return View("Index", ConstructBaseManagementVMAsync());
             }
             
             _unitOfWork.Breeds.Add(newBreed);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync();
             TempData["success"] = "The breed created successfully";
             return RedirectToAction("Index", new { type = "Breed" });
         }
 
         [HttpPost]
-        public IActionResult UpdateBreed(Breed newBreed)
+        public async Task<IActionResult> UpdateBreedAsync(Breed newBreed)
         {
-            var existingBreed= _unitOfWork.Breeds.GetAll().Where(e => e.Name == newBreed.Name).FirstOrDefault();
+            var breeds = await _unitOfWork.Breeds.GetAllAsync();
+            var existingBreed = breeds.Where(e => e.Name == newBreed.Name).FirstOrDefault();
             if (existingBreed != null && existingBreed.Id != newBreed.Id)
             {
                 TempData["error"] = "This breed exist!";
-                return View("Index", ConstructBaseManagementVM());
+                return View("Index", ConstructBaseManagementVMAsync());
             }
             if (!ModelState.IsValid)
             {
-                return View("Index", ConstructBaseManagementVM());
+                return View("Index", ConstructBaseManagementVMAsync());
             }
 
-            var breed = _unitOfWork.Breeds.Get(e => e.Id == newBreed.Id);
+            var breed = await _unitOfWork.Breeds.GetAsync(e => e.Id == newBreed.Id);
             if (breed == null)
             {
-                return View("Index", ConstructBaseManagementVM());
+                return View("Index", ConstructBaseManagementVMAsync());
             }
 
             breed.Name = newBreed.Name;
 
             _unitOfWork.Breeds.Update(breed);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync();
             TempData["success"] = "The bread updated successfully";
             return RedirectToAction("Index", new { type = "Breed" });
         }
 
 
         [HttpPost, ActionName("DeleteBreed")]
-        public IActionResult DeleteBreed(int id)
+        public async Task<IActionResult> DeleteBreedAsync(int id)
         {
-            var breed = _unitOfWork.Breeds.Get(e => e.Id == id);
+            var breed = await _unitOfWork.Breeds.GetAsync(e => e.Id == id);
             if (breed == null)
             {
-                return View("Index", ConstructBaseManagementVM());
+                return View("Index", ConstructBaseManagementVMAsync());
             }
 
             _unitOfWork.Breeds.Remove(breed);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync();
             TempData["success"] = "The breed removed successfully";
             return RedirectToAction("Index", new { type = "Breed" });
         }
-
-
     }
 }

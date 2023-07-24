@@ -9,9 +9,12 @@
     <div class="row">
         <div class="col d-flex">
             <div class="photo border me-3" style="height: 150px; width: 150px">
-                <img src="@Model.Input.Photo" alt="Photo" style="width:100%; height: 100%" />
+                @if(Model.Input.Photo != "")
+                {
+                    <img src="@Model.Input.Photo" alt="Photo" style="width:100%; height: 100%" />
+                }
+                
             </div>
-
             <div class="d-flex flex-column">
                 <h5>@Model.Input.Vet.FirstName @Model.Input.Vet.LastName</h5>
 
@@ -43,7 +46,7 @@
 
     <div class="tab-content mt-3">
         <div class="tab-pane fade active show" id="appointments" role="tabpanel">
-            <div id="calendar"></div>
+            <div id="vet-appointments-calendar"></div>
         </div>
         <div class="tab-pane fade" id="specialisations" role="tabpanel">
             <table class="table table-hover mt-3">
@@ -100,32 +103,14 @@
     </div>
 </div>
 
+<script src="~/js/calendars.js"></script>
 <script>
-    loadCalendar();
-
-    function loadCalendar() {
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            navLinks: true,
-            headerToolbar: {
-                left: 'prev,next',
-                center: 'title',
-                right: 'dayGridMonth,dayGridWeek,dayGridDay'
-            },
-            dayMaxEvents: true,
-            events: "/Identity/Account/Manage?handler=AllEvents"
-        });
-        calendar.render();
-    };
-
+    loadVetAppointmentsCalendar();
     document.getElementById("changePassword").addEventListener("click", () => {
-        console.log("click");
         document.getElementById("password-box").classList.toggle("visually-hidden");
     });
-
-    
 </script>
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

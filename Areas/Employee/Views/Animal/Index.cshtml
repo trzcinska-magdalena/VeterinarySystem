@@ -30,7 +30,7 @@
                     <th scope="row">@animal.Name</th>
                     <td>@animal.Breed.Name</td>
                     <td>@animal.Client.FirstName @animal.Client.LastMame</td>
-                    <td><a asp-controller="animal" asp-action="detail" asp-route-id="@animal.Id"><i class="bi bi-box-arrow-in-right text-primary"></i></a></td>
+                    <td><a asp-controller="animal" asp-action="detail" asp-route-id="@animal.Id" asp-route-activeTab="Weight"><i class="bi bi-box-arrow-in-right text-primary"></i></a></td>
                 </tr>
             }
         </tbody>

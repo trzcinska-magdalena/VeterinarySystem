@@ -30,5 +30,8 @@ namespace VeterinarySystem.Models.ViewModels
 
         [ValidateNever]
         public Appointment Appointment { get; set; } = null!;
+
+        [ValidateNever]
+        public string ActiveTab { get; set; } = null!;
     }
 }

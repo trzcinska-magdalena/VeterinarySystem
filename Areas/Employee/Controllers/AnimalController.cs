@@ -131,7 +131,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Detail(int? id)
+        public async Task<IActionResult> Detail(int? id, string activeTab)
         {
             if (id == null)
             {
@@ -147,6 +147,9 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             var animalDetailModel = await ConstructAnimalDetailVMAsync();
             animalDetailModel.Animal = animal;
             animalDetailModel.Appointments = await _unitOfWork.Appointments.GetAppointmentsWithAllData((int)id);
+            animalDetailModel.ActiveTab = activeTab;
+
+            Console.WriteLine(animalDetailModel.ActiveTab + " activeTab");
 
             return View(animalDetailModel);
         }
@@ -175,7 +178,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 await _unitOfWork.SaveAsync();
                 TempData["success"] = "Weight added successfully";
             }
-            return RedirectToAction("Detail", new { id });
+            return RedirectToAction("Detail", new { id, activeTab = "Weight" });
         }
 
         public async Task<IActionResult> AddNewVaccinationAsync(int? id, Vaccination newVaccination)
@@ -192,13 +195,13 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             else
             {
                 newVaccination.Animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id);
-                newVaccination.TypeOfVaccine = await _unitOfWork.TypeOfVaccines.GetAsync(e => e.Id == newVaccination.TypeOfVaccine.Id);
+                newVaccination.TypeOfVaccine = await _unitOfWork.TypeOfVaccines.GetAsync(e => e.Id == newVaccination.TypeOfVaccineId);
 
                 _unitOfWork.Vaccinations.Add(newVaccination);
                 await _unitOfWork.SaveAsync();
                 TempData["success"] = "Vaccination added successfully";
             }
-            return RedirectToAction("Detail", new { id });
+            return RedirectToAction("Detail", new { id, activeTab = "Vaccination" });
         }
 
         public async Task<IActionResult> AddNewAppointmentAsync(int? id, Appointment newAppointment)

@@ -19,19 +19,19 @@
                 <div class="mt-auto">
                     <ul class="nav nav-tabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link active" data-bs-toggle="tab" href="#appointment" role="tab">
+                            <a class="nav-link @(Model.ActiveTab == "Appointment" ? "active" : "")" data-bs-toggle="tab" href="#appointment" role="tab">
                                 <i class="bi bi-calendar-week-fill me-1"></i>
                                 <span class="d-none d-md-inline">Appointments</span>
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link" data-bs-toggle="tab" href="#weight" role="tab">
+                            <a class="nav-link @(Model.ActiveTab == "Weight" ? "active" : "")" data-bs-toggle="tab" href="#weight" role="tab">
                                 <i class="bi bi-stopwatch-fill me-1"></i>
                                 <span class="d-none d-md-inline">Weights</span>
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link" data-bs-toggle="tab" href="#vaccination" role="tab">
+                            <a class="nav-link @(Model.ActiveTab == "Vaccination" ? "active" : "")" data-bs-toggle="tab" href="#vaccination" role="tab">
                                 <i class="bi bi-capsule-pill me-1"></i>
                                 <span class="d-none d-md-inline">Vaccinations</span>
                             </a>
@@ -45,7 +45,7 @@
     <div class="row mt-3">
         <div class="col">
             <div id="myTabContent" class="tab-content">
-                <div class="tab-pane fade active show" id="appointment" role="tabpanel">
+                <div class="tab-pane fade @(Model.ActiveTab == "Appointment" ? "active show" : "")" id="appointment" role="tabpanel">
                     @if (Model.Animal.Appointments.Count() == 0)
                     {
                         <div class="text-center">No data available</div>
@@ -56,7 +56,7 @@
                     }
                 </div>
 
-                <div class="tab-pane fade" id="weight" role="tabpanel">
+                <div class="tab-pane fade @(Model.ActiveTab == "Weight" ? "active show" : "")" id="weight" role="tabpanel">
                     <form method="post" class="input-group mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewWeight">
                         <input type="date" class="form-control shadow-none" placeholder="Date" asp-for="NewWeight.Date">
                         <input type="text" class="form-control shadow-none" placeholder="Weight" asp-for="NewWeight.Value">
@@ -73,7 +73,7 @@
                     }
                 </div>
 
-                <div class="tab-pane fade" id="vaccination" role="tabpanel">
+                <div class="tab-pane fade @(Model.ActiveTab == "Vaccination" ? "active show" : "")" id="vaccination" role="tabpanel">
                     <form method="post" class="input-group mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewVaccination">
                         <select class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
                             <option style="display:none">Name</option>

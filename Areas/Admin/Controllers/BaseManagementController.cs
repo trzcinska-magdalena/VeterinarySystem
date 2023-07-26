@@ -57,10 +57,7 @@ namespace VeterinarySystem.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateBreedAsync(Breed updatedBreed)
         {
-            Console.Write(updatedBreed.Id + " name " + updatedBreed.Name);
-
-            var existingBreed = await _unitOfWork.Breeds.GetAsync(e => e.Name == updatedBreed.Name);
-
+            var existingBreed = await _unitOfWork.Breeds.GetAsync(filter: e => e.Name == updatedBreed.Name, tracking: false);
 
             var model = await ConstructBaseManagementVMAsync();
 
@@ -74,7 +71,7 @@ namespace VeterinarySystem.Areas.Admin.Controllers
                 return View("Index", model);
             }
 
-            var breedToUpdate = await _unitOfWork.Breeds.GetAsync(e => e.Id == updatedBreed.Id);
+            var breedToUpdate = await _unitOfWork.Breeds.GetAsync(filter: e => e.Id == updatedBreed.Id);
             if (breedToUpdate == null)
             {
                 return View("Index", model);
@@ -92,7 +89,7 @@ namespace VeterinarySystem.Areas.Admin.Controllers
         [HttpPost, ActionName("DeleteBreed")]
         public async Task<IActionResult> DeleteBreedAsync(int id)
         {
-            var breed = await _unitOfWork.Breeds.GetAsync(e => e.Id == id);
+            var breed = await _unitOfWork.Breeds.GetAsync(filter: e => e.Id == id);
             if (breed == null)
             {
                 TempData["error"] = "The breed was not found";

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
+using System.Linq.Expressions;
 using VeterinarySystem.Data;
 using VeterinarySystem.Models;
 using VeterinarySystem.Models.Db;
@@ -88,7 +89,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             var animalViewModel = new AnimalViewModel
             {
-                Animals = await _unitOfWork.Animals.GetAllAsync(x => x.Breed, x => x.Client)
+                Animals = await _unitOfWork.Animals.GetAllAsync(e => e.Breed, e => e.Client)
             };
             return View(animalViewModel);
         }
@@ -121,9 +122,6 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 return View(await ConstructAnimalCreateVMAsync());
             }
 
-            animal.ClientId = animal.Client.Id;
-            animal.BreedId = animal.Breed.Id;
-
             _unitOfWork.Animals.Add(animal);
             await _unitOfWork.SaveAsync();
             TempData["success"] = "Animal created successfully";
@@ -138,7 +136,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 return NotFound();
             }
 
-            var animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id, x => x.Breed, x => x.Client, x => x.Weights);
+            var animal = await _unitOfWork.Animals.GetAsync(filter: e => e.Id == id, tracking: false, e => e.Breed, e => e.Client, e => e.Weights);
             if (animal == null)
             {
                 return NotFound();
@@ -148,8 +146,6 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             animalDetailModel.Animal = animal;
             animalDetailModel.Appointments = await _unitOfWork.Appointments.GetAppointmentsWithAllData((int)id);
             animalDetailModel.ActiveTab = activeTab;
-
-            Console.WriteLine(animalDetailModel.ActiveTab + " activeTab");
 
             return View(animalDetailModel);
         }
@@ -161,7 +157,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 return NotFound();
             }
 
-            var animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id);
+            var animal = await _unitOfWork.Animals.GetAsync(filter: e => e.Id == id, tracking: false);
             if (animal == null)
             {
                 return NotFound();
@@ -194,8 +190,11 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             }
             else
             {
-                newVaccination.Animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id);
-                newVaccination.TypeOfVaccine = await _unitOfWork.TypeOfVaccines.GetAsync(e => e.Id == newVaccination.TypeOfVaccineId);
+                newVaccination.AnimalId = (int)id;
+                newVaccination.TypeOfVaccineId = newVaccination.TypeOfVaccineId;
+
+                //newVaccination.Animal = await _unitOfWork.Animals.GetAsync(filter: e => e.Id == id, tracking: false);
+                //newVaccination.TypeOfVaccine = await _unitOfWork.TypeOfVaccines.GetAsync(filter: e => e.Id == newVaccination.TypeOfVaccineId, tracking: false);
 
                 _unitOfWork.Vaccinations.Add(newVaccination);
                 await _unitOfWork.SaveAsync();
@@ -217,17 +216,17 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             }
             else
             {
-                newAppointment.Animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id);
+                newAppointment.Animal = await _unitOfWork.Animals.GetAsync(filter: e => e.Id == id, tracking: false);
                 _unitOfWork.Appointments.Add(newAppointment);
                 await _unitOfWork.SaveAsync();
                 TempData["success"] = "Appointment added successfully";
             }
-            return RedirectToAction("Detail", new { id });
+            return RedirectToAction("Detail", new { id, activeTab = "Appointment" });
         }
 
         public async Task<IActionResult> UpdateWeightsAsync(string label, int value, int id)
         {
-            var weight = await _unitOfWork.Weights.GetAsync(e => e.AnimalId == id && e.Date == DateTime.Parse(label));
+            var weight = await _unitOfWork.Weights.GetAsync(filter: e => e.AnimalId == id && e.Date == DateTime.Parse(label));
 
             if (value == 0)
             {
@@ -263,7 +262,8 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         public async Task<IActionResult> ShowAppointmentInfoAsync(int id)
         {
             Console.WriteLine(id);
-            animalDetailViewModel.Appointment = await _unitOfWork.Appointments.GetAsync(x => x.Id == id);
+
+            animalDetailViewModel.Appointment = await _unitOfWork.Appointments.GetAsync(filter: e => e.Id == id, tracking: false);
             return Ok();
         }
     }

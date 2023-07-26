@@ -8,11 +8,11 @@
 
         public string LastName { get; set; } = null!;
 
-        public byte[] Photo { get; set; }
+        public byte[]? Photo { get; set; }
 
-        public string ApplicationUserId { get; set; }
+        public string? ApplicationUserId { get; set; }
 
-        public virtual ApplicationUser ApplicationUser { get; set; }
+        public virtual ApplicationUser? ApplicationUser { get; set; }
 
         public virtual ICollection<VetSpecialisation> VetSpecialisations { get; set; } = new List<VetSpecialisation>();
 

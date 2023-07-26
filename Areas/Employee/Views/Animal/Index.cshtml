@@ -10,7 +10,7 @@
         </div>
 
         <div class="col-10 col-md-5 col-lg-3 text-start text-lg-end mb-3">
-            <a asp-action="create" asp-controller="animal" class="btn btn-primary" type="button">Add new animal</a>
+            <a asp-action="Create" asp-controller="Animal" class="btn btn-primary" type="button">Add new animal</a>
         </div>
     </div>
 
@@ -30,7 +30,7 @@
                     <th scope="row">@animal.Name</th>
                     <td>@animal.Breed.Name</td>
                     <td>@animal.Client.FirstName @animal.Client.LastMame</td>
-                    <td><a asp-controller="animal" asp-action="detail" asp-route-id="@animal.Id" asp-route-activeTab="Weight"><i class="bi bi-box-arrow-in-right text-primary"></i></a></td>
+                    <td><a asp-controller="Animal" asp-action="Detail" asp-route-id="@animal.Id" asp-route-activeTab="Appointment"><i class="bi bi-box-arrow-in-right text-primary"></i></a></td>
                 </tr>
             }
         </tbody>

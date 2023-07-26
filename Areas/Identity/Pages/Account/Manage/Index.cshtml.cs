@@ -54,7 +54,7 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
-            var vet = await _unitOfWork.Vets.GetAsync(filter: e => e.ApplicationUserId == user.Id, tracking: false);
+            var vet = await _unitOfWork.Vets.GetAsync(e => e.ApplicationUserId == user.Id);
             if (vet == null)
             {
                 return NotFound();
@@ -73,10 +73,10 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var vet = await _unitOfWork.Vets.GetAsync(filter: e => e.ApplicationUserId == user.Id, tracking: false);
+            var vet = await _unitOfWork.Vets.GetAsync(e => e.ApplicationUserId == user.Id);
             if (!ModelState.IsValid)
             {
-                await LoadModelView(user, vet);
+                LoadModelView(user, vet);
                 return Page();
             }
 
@@ -87,12 +87,12 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
-                await LoadModelView(user, vet);
+                LoadModelView(user, vet);
                 return Page();
             }
             await _signInManager.RefreshSignInAsync(user);
             TempData["success"] = "Your password has been changed.";
-            await LoadModelView(user, vet);
+            LoadModelView(user, vet);
             return RedirectToPage();
         }
 

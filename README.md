@@ -1,6 +1,6 @@
 # VeterinarySystem
 <a href="https://youtu.be/_8c6GhvSoAE">Click to go to the video</a> <br>
-<img src="https://github.com/trzcinska-magdalena/VeterinarySystem/assets/109164652/ef3124d3-901c-4dd7-ad36-a4347b00d9d9" width="1000">
+<img src="https://github.com/trzcinska-magdalena/VeterinarySystem/assets/109164652/15a838d2-5758-43f6-82ae-8a4454bccfec" width="1000">
 
 ## I've used:
 - ASP.NET

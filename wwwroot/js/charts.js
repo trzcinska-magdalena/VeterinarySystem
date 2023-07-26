@@ -46,7 +46,7 @@
                         },
                         success: function (result) {
                             console.log(result);
-                            window.location.href = "/Employee/Animal/Detail/" + animalId;
+                            window.location.href = "/Employee/Animal/Detail/" + animalId + "?activeTab=Weight";
                         },
                         error: function (error) {
                             console.error(error);

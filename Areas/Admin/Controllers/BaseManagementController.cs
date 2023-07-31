@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Linq.Expressions;
 using VeterinarySystem.Data;
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
+using VeterinarySystem.Repository;
 using VeterinarySystem.Repository.IRepository;
 
 namespace VeterinarySystem.Areas.Admin.Controllers
@@ -22,7 +25,7 @@ namespace VeterinarySystem.Areas.Admin.Controllers
         {
             var baseManagementViewModel = new BaseManagementViewModel
             {
-                Breeds = await _unitOfWork.Breeds.GetAllAsync()
+                AllBreeds = await _unitOfWork.Breeds.GetAllAsync(tracking: false)
             };
             return baseManagementViewModel;
         }
@@ -32,75 +35,133 @@ namespace VeterinarySystem.Areas.Admin.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddNewBreedAsync(Breed newBreed)
+        private void SetTempData(string tempType, string tempData)
         {
-            var breeds = await _unitOfWork.Breeds.GetAllAsync();
-            var model = await ConstructBaseManagementVMAsync();
-
-            if (breeds.Any(e => e.Name == newBreed.Name))
-            {
-                TempData["error"] = "This breed exist!";
-                return View("Index", model);
-            }
-            else if (!ModelState.IsValid)
-            {
-                return View("Index", model);
-            }
-            
-            _unitOfWork.Breeds.Add(newBreed);
-            await _unitOfWork.SaveAsync();
-            TempData["success"] = "The breed was created successfully";
-            return RedirectToAction("Index", new { type = "Breed" });
+            TempData[tempType] = tempData;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpdateBreedAsync(Breed updatedBreed)
+        private async Task SaveBreedInTheBaseAsync(Breed breed)
         {
-            var existingBreed = await _unitOfWork.Breeds.GetAsync(filter: e => e.Name == updatedBreed.Name, tracking: false);
+            try
+            {
+                _unitOfWork.Breeds.Add(breed);
+                await _unitOfWork.SaveAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the error details to the log file
+
+                throw new Exception(ex.Message);
+            }
+
+        }
+
+        private async Task UpdateBreedInTheBaseAsync(Breed breed)
+        {
+            try
+            {
+                _unitOfWork.Breeds.Update(breed);
+                await _unitOfWork.SaveAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the error details to the log file
+
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private async Task RemoveBreedInTheBaseAsync(Breed breed)
+        {
+            try
+            {
+                _unitOfWork.Breeds.Remove(breed);
+                await _unitOfWork.SaveAsync();
+            }
+            catch (Exception ex)
+            {
+                // TODO - Log the error details to the log file
+
+                throw new Exception(ex.Message);
+                
+            }
+        }
+
+        private async Task<Breed?> GetBreedOrNullAsync(Expression<Func<Breed, bool>> filter)
+        {
+            try
+            {
+                return await _unitOfWork.Breeds.GetAsync(filter);
+            }
+            catch (Exception ex)
+            {
+                // TODO - Log the error details to the log file
+
+                throw new Exception(ex.Message);            
+            }
+        }
+
+        [HttpPost, ActionName("AddNewBreed")]
+        public async Task<IActionResult> AddNewBreedAsync(Breed newBreed)
+        {
+            if (await GetBreedOrNullAsync(e => e.Name == newBreed.Name) != null)
+            {
+                SetTempData("error", "This breed exists!");
+            }
+            else if (ModelState.IsValid)
+            {
+                await SaveBreedInTheBaseAsync(newBreed);
+                SetTempData("success", "The breed was created successfully");
+
+                return RedirectToAction("Index");
+            }
 
             var model = await ConstructBaseManagementVMAsync();
+            return View("Index", model);
+        }
 
-            if (existingBreed != null && existingBreed.Id != updatedBreed.Id)
+        [HttpPost, ActionName("UpdateBreed")]
+        public async Task<IActionResult> UpdateBreedAsync(Breed newBreed)
+        {
+            if (await GetBreedOrNullAsync(e => e.Name == newBreed.Name && e.Id != newBreed.Id) != null)
             {
-                TempData["error"] = "This breed exist!";
-                return View("Index", model);
+                SetTempData("error", "This breed exists!");
             }
-            else if (!ModelState.IsValid)
+            else if (ModelState.IsValid)
             {
-                return View("Index", model);
+                var breedToUpdate = await GetBreedOrNullAsync(e => e.Id == newBreed.Id && e.Name != newBreed.Name);
+                if (breedToUpdate != null)
+                {
+                    breedToUpdate.Name = newBreed.Name;
+
+                    await UpdateBreedInTheBaseAsync(breedToUpdate);
+                    SetTempData("success", "The breed was updated successfully");
+
+                    return RedirectToAction("Index");
+                }
             }
-
-            var breedToUpdate = await _unitOfWork.Breeds.GetAsync(filter: e => e.Id == updatedBreed.Id);
-            if (breedToUpdate == null)
-            {
-                return View("Index", model);
-            }
-            breedToUpdate.Name = updatedBreed.Name;
-
-            _unitOfWork.Breeds.Update(breedToUpdate);
-            await _unitOfWork.SaveAsync();
-
-            TempData["success"] = "The bread was updated successfully";
-            return RedirectToAction("Index");
+            var model = await ConstructBaseManagementVMAsync();
+            return View("Index", model);
         }
 
 
         [HttpPost, ActionName("DeleteBreed")]
         public async Task<IActionResult> DeleteBreedAsync(int id)
         {
-            var breed = await _unitOfWork.Breeds.GetAsync(filter: e => e.Id == id);
+            var breed = await GetBreedOrNullAsync(e => e.Id == id);
             if (breed == null)
             {
-                TempData["error"] = "The breed was not found";
+                SetTempData("error", "The breed was not found!");
             }
             else
             {
-                _unitOfWork.Breeds.Remove(breed);
-                await _unitOfWork.SaveAsync();
-                TempData["success"] = "The breed was removed successfully";
+                await RemoveBreedInTheBaseAsync(breed);
+                SetTempData("success", "The breed was removed successfully");
+
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
+            var model = await ConstructBaseManagementVMAsync();
+            return View("Index", model);
         }
     }
 }

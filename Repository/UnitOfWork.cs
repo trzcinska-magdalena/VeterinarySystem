@@ -1,4 +1,5 @@
-﻿using VeterinarySystem.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using VeterinarySystem.Data;
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Repository.IRepository;
 
@@ -41,7 +42,22 @@ namespace VeterinarySystem.Repository
 
         public async Task SaveAsync()
         {
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch(DbUpdateException ex) 
+            {
+                // TODO - Log the error details to the log file
+
+                throw new DbUpdateException("An error occurred while saving data to the database.", ex);
+            }
+            catch(Exception ex) 
+            {
+                // TODO - Log the error details to the log file
+
+                throw new Exception("Unknown error occurred while saving data to the database.", ex);
+            }
         }
     }
 }

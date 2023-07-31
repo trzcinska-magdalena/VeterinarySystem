@@ -37,7 +37,7 @@ namespace VeterinarySystem.Repository
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeProperties)
+        public async Task<IEnumerable<T>> GetAllAsync(bool tracking = true, params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
 
@@ -45,8 +45,17 @@ namespace VeterinarySystem.Repository
             {
                 query = query.Include(property);
             }
+            if (!tracking)
+            {
+                return await query.AsNoTracking().ToListAsync();
+            }
 
             return await query.ToListAsync();
+        }
+
+        public async Task<bool> BreedExistsAsync(Expression<Func<T, bool>> filter)
+        {
+            return await dbSet.AsNoTracking().AnyAsync(filter);          
         }
 
         public void Remove(T entity)

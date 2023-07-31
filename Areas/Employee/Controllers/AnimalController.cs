@@ -23,8 +23,8 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         }
         public async Task<AnimalCreateViewModel> ConstructAnimalCreateVMAsync()
         {
-            var breeds = await _unitOfWork.Breeds.GetAllAsync();
-            var clients = await _unitOfWork.Clients.GetAllAsync();
+            var breeds = await _unitOfWork.Breeds.GetAllAsync(tracking: false);
+            var clients = await _unitOfWork.Clients.GetAllAsync(tracking: false);
 
             var animalCreateViewModel = new AnimalCreateViewModel
             {
@@ -46,11 +46,11 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         }
         public async Task<AnimalDetailViewModel> ConstructAnimalDetailVMAsync()
         {
-            var typeOfVaccines = await _unitOfWork.TypeOfVaccines.GetAllAsync();
-            var vaccinations = await _unitOfWork.Vaccinations.GetAllAsync();
-            var medicines = await _unitOfWork.Medicines.GetAllAsync();
-            var surgeries = await _unitOfWork.Surgeries.GetAllAsync();
-            var vets = await _unitOfWork.Vets.GetAllAsync();
+            var typeOfVaccines = await _unitOfWork.TypeOfVaccines.GetAllAsync(tracking: false);
+            var vaccinations = await _unitOfWork.Vaccinations.GetAllAsync(tracking: false);
+            var medicines = await _unitOfWork.Medicines.GetAllAsync(tracking: false);
+            var surgeries = await _unitOfWork.Surgeries.GetAllAsync(tracking: false);
+            var vets = await _unitOfWork.Vets.GetAllAsync(tracking: false);
 
             animalDetailViewModel.TypeOfVaccines = typeOfVaccines.Select(a =>
             new SelectListItem
@@ -89,7 +89,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             var animalViewModel = new AnimalViewModel
             {
-                Animals = await _unitOfWork.Animals.GetAllAsync(e => e.Breed, e => e.Client)
+                Animals = await _unitOfWork.Animals.GetAllAsync(tracking: false, e => e.Breed, e => e.Client)
             };
             return View(animalViewModel);
         }
@@ -99,7 +99,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             var animalViewModel = new AnimalViewModel
             {
-                Animals = await _unitOfWork.Animals.GetAllAsync(x => x.Breed, x => x.Client)
+                Animals = await _unitOfWork.Animals.GetAllAsync(tracking: false, e => e.Breed, e => e.Client)
             };
 
             if (!string.IsNullOrEmpty(searchString))

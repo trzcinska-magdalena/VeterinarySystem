@@ -36,7 +36,7 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
 
         private async Task LoadModelView(IdentityUser user, Vet vet)
         {
-            var vetSpecialisations = await _unitOfWork.VetSpecialisations.GetAllAsync(e => e.Specialisation);
+            var vetSpecialisations = await _unitOfWork.VetSpecialisations.GetAllAsync(tracking: false, e => e.Specialisation);
             Input = new AccountManageViewModel
             {
                 Vet = vet,
@@ -98,8 +98,8 @@ namespace VeterinarySystem.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnGetAllEventsAsync()
         {
-            var appointmentVets = await _unitOfWork.AppointmentVets.GetAllAsync(x => x.Appointment);
-            var animal = await _unitOfWork.Animals.GetAllAsync();
+            var appointmentVets = await _unitOfWork.AppointmentVets.GetAllAsync(tracking: false, e => e.Appointment);
+            var animal = await _unitOfWork.Animals.GetAllAsync(tracking: false);
             var events = appointmentVets.Where(e=>e.VetId == 2)
                 .Select(e=> new Event
                 {

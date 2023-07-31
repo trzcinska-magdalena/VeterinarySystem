@@ -24,14 +24,23 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var animal in Model.Animals)
+            @if (Model.Animals.Count() == 0)
             {
                 <tr>
-                    <th scope="row">@animal.Name</th>
-                    <td>@animal.Breed.Name</td>
-                    <td>@animal.Client.FirstName @animal.Client.LastMame</td>
-                    <td><a asp-controller="Animal" asp-action="Detail" asp-route-id="@animal.Id" asp-route-activeTab="Appointment"><i class="bi bi-box-arrow-in-right text-primary"></i></a></td>
+                    <td colspan="4">No data available</td>
                 </tr>
+            }
+            else
+            {
+                @foreach (var animal in Model.Animals)
+                {
+                    <tr>
+                        <th scope="row">@animal.Name</th>
+                        <td>@animal.Breed.Name</td>
+                        <td>@animal.Client.FirstName @animal.Client.LastMame</td>
+                        <td><a asp-controller="Animal" asp-action="Detail" asp-route-id="@animal.Id" asp-route-activeTab="Appointment"><i class="bi bi-box-arrow-in-right text-primary"></i></a></td>
+                    </tr>
+                }
             }
         </tbody>
     </table>

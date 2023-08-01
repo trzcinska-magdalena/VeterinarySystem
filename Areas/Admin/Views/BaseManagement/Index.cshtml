@@ -1,39 +1,47 @@
 ﻿@model BaseManagementViewModel
 
-<div class="container justify-content-center">
-    <table class="table table-hover mt-3">
-        <thead>
-            <tr>
-                <th scope="col">Name</th>
-                <th style="width: 150px"></th>
-            </tr>
-        </thead>
-        <tbody>
-            <form method="post">
+
+@if (ViewBag.Error == "true")
+{
+    <partial name="_Error" />
+}
+else
+{
+    <div class="container justify-content-center">
+        <table class="table table-hover mt-3">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th style="width: 150px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <form method="post">
                 <tr>
                     <td class="bg-secondary-subtle">
                         <input asp-for="NewBreed.Name" type="text" class="form-control shadow-none">
                     </td>
                     <td class="bg-secondary-subtle text-end">
-                    <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="AddNewBreed">Add</button>
+                        <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="AddNewBreed">Add</button>
                     </td>
                 </tr>
-            </form>
-            @foreach (var breed in Model.AllBreeds.OrderBy(e => e.Name))
-            {
+                </form>
+                @foreach (var breed in Model.AllBreeds.OrderBy(e => e.Name))
+                {
                     <form method="post">
-                        <tr>
-                            <td>
-                        <input asp-for="@breed.Id" name="NewBreed.Id" type="text" class="form-control shadow-none" hidden>
-                        <input asp-for="@breed.Name" name="NewBreed.Name" type="text" class="form-control shadow-none">
-                            </td>
-                            <td class="text-end">
-                                <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="UpdateBreed">Save</button>
-                                <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="DeleteBreed" asp-route-id="@breed.Id">Delete</button>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td>
+                            <input asp-for="@breed.Id" name="NewBreed.Id" type="text" class="form-control shadow-none" hidden>
+                            <input asp-for="@breed.Name" name="NewBreed.Name" type="text" class="form-control shadow-none">
+                        </td>
+                        <td class="text-end">
+                            <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="UpdateBreed">Save</button>
+                            <button type="submit" class="btn btn-sm btn-primary m-1" asp-action="DeleteBreed" asp-route-id="@breed.Id">Delete</button>
+                        </td>
+                    </tr>
                     </form>
-            }
-        </tbody>
-    </table>
-</div>
+                }
+            </tbody>
+        </table>
+    </div>
+}

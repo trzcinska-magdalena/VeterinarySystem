@@ -71,3 +71,14 @@ button.login {
     outline: none !important;
     box-shadow: none;
 }
+
+.error-page {
+    background-image: url("../img/background.jpg");
+    background-size: cover;
+    background-position: center, center;
+    height: calc(100vh - 54px);
+}
+
+    .error-page h1 {
+        font-size: 64px;
+    }

@@ -3,6 +3,7 @@ using VeterinarySystem.Data;
 using VeterinarySystem.Repository;
 using VeterinarySystem.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
+using VeterinarySystem.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<VeterinarySystemContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<VeterinarySystemContext>();
 builder.Services.ConfigureApplicationCookie(options =>
@@ -23,16 +26,24 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ISystemService, SystemService>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler("/Error");
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+
     app.UseHsts();
 }
+
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -20,14 +20,14 @@
 
                 <div class="form-group mt-3">
                     <label for="breed" class="form-label">Breed</label>
-                    <select class="form-select" id="breed" asp-items="Model.Breeds" asp-for="Animal.BreedId">
+                    <select class="form-select" id="breed" asp-items="Model.AllBreeds" asp-for="Animal.BreedId">
                         <option style="display:none">Select</option>
                     </select>
                 </div>
 
                 <div class="form-group mt-3">
                     <label for="client" class="form-label">Client</label>
-                    <select class="form-select" id="clients" asp-items="Model.Clients" asp-for="Animal.ClientId">
+                    <select class="form-select" id="clients" asp-items="Model.AllClients" asp-for="Animal.ClientId">
                         <option style="display:none">Select</option>
                     </select>
                 </div>

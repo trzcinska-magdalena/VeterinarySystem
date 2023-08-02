@@ -7,6 +7,7 @@ using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
 using VeterinarySystem.Repository;
 using VeterinarySystem.Repository.IRepository;
+using VeterinarySystem.Service;
 
 namespace VeterinarySystem.Areas.Admin.Controllers
 {
@@ -14,106 +15,55 @@ namespace VeterinarySystem.Areas.Admin.Controllers
     [Authorize(Roles = UserRole.Role_Admin)]
     public class BaseManagementController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISystemService _systemService;
+      
 
-        public BaseManagementController(IUnitOfWork unitOfWork)
+        public BaseManagementController(ISystemService systemService)
         {
-            _unitOfWork = unitOfWork;
-        }
-
-        public async Task<BaseManagementViewModel> ConstructBaseManagementVMAsync()
-        {
-            var baseManagementViewModel = new BaseManagementViewModel
-            {
-                AllBreeds = await _unitOfWork.Breeds.GetAllAsync(tracking: false)
-            };
-            return baseManagementViewModel;
-        }
-
-        private void SetTempData(string tempType, string tempData)
-        {
-            TempData[tempType] = tempData;
-        }
-
-        private void SetLogError(Exception ex)
-        {
-            //TODO
-        }
-
-        private void SetErrorViewBag()
-        {
-            ViewBag.Error = "true";
+            _systemService = systemService;
         }
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                var model = await ConstructBaseManagementVMAsync();
+                var model = await _systemService.ConstructBaseManagementVMAsync();
                 return View(model);
             }
             catch (Exception ex)
             {
-                SetLogError(ex);
-                SetErrorViewBag();
-                return View();
+                _systemService.SetLogError(ex);
+                return RedirectToAction("Index", "Error");
             }
         }
 
-        private async Task SaveBreedInTheBaseAsync(Breed breed)
-        {
-            _unitOfWork.Breeds.Add(breed);
-            await _unitOfWork.SaveAsync();
-        }
-
-        private async Task UpdateBreedInTheBaseAsync(Breed breed)
-        {
-            _unitOfWork.Breeds.Update(breed);
-            await _unitOfWork.SaveAsync();
-        }
-
-        private async Task RemoveBreedInTheBaseAsync(Breed breed)
-        {
-            _unitOfWork.Breeds.Remove(breed);
-            await _unitOfWork.SaveAsync();
-        }
-
-        private async Task<Breed?> GetBreedOrNullAsync(Expression<Func<Breed, bool>> filter)
-        {
-                return await _unitOfWork.Breeds.GetAsync(filter);
-        }
-
-        private async Task<bool> BreedExistsAsync(Expression<Func<Breed, bool>> filter)
-        {
-            return await _unitOfWork.Breeds.BreedExistsAsync(filter);
-        }
-     
-
+        
         [HttpPost, ActionName("AddNewBreed")]
         public async Task<IActionResult> AddNewBreedAsync(Breed newBreed)
         {
             try
             {
-                if (!await BreedExistsAsync(e => e.Name == newBreed.Name))
+                if (await _systemService.BreedExistsAsync(e => e.Name == newBreed.Name))
                 {
-                    SetTempData("error", "This breed exists!");
+                    _systemService.SetTempData(TempData, "error", "This breed exists!");
+                    _systemService.SetLogInfo("");
                 }
                 else if (ModelState.IsValid)
                 {
-                    await SaveBreedInTheBaseAsync(newBreed);
-                    SetTempData("success", "The breed was created successfully");
+                    await _systemService.SaveBreedInTheBaseAsync(newBreed);
+                    _systemService.SetTempData(TempData, "success", "The breed was created successfully");
+                    _systemService.SetLogInfo("");
 
                     return RedirectToAction("Index");
                 }
 
-                var model = await ConstructBaseManagementVMAsync();
+                var model = await _systemService.ConstructBaseManagementVMAsync();
                 return View("Index", model);
             }
             catch (Exception ex)
             {
-                SetLogError(ex);
-                SetErrorViewBag();
-                return View();
+                _systemService.SetLogError(ex);
+                return RedirectToAction("Index", "Error");
             }          
         }
 
@@ -122,60 +72,33 @@ namespace VeterinarySystem.Areas.Admin.Controllers
         {
             try
             {
-                if (await BreedExistsAsync(e => e.Name == newBreed.Name && e.Id != newBreed.Id))
+                if (await _systemService.BreedExistsAsync(e => e.Name == newBreed.Name && e.Id != newBreed.Id))
                 {
-                    SetTempData("error", "This breed exists!");
+                    _systemService.SetTempData(TempData, "error", "This breed exists!");
+                    _systemService.SetLogInfo("");
                 }
                 else if (ModelState.IsValid)
                 {
-                    var breedToUpdate = await GetBreedOrNullAsync(e => e.Id == newBreed.Id && e.Name != newBreed.Name);
+                    var breedToUpdate = await _systemService.GetBreedOrNullAsync(e => e.Id == newBreed.Id && e.Name != newBreed.Name);
                     if (breedToUpdate != null)
                     {
                         breedToUpdate.Name = newBreed.Name;
 
-                        await UpdateBreedInTheBaseAsync(breedToUpdate);
-                        SetTempData("success", "The breed was updated successfully");
+                        await _systemService.UpdateBreedInTheBaseAsync(breedToUpdate);
+                        _systemService.SetTempData(TempData, "success", "The breed was updated successfully");
+                        _systemService.SetLogInfo("");
 
                         return RedirectToAction("Index");
                     }
                 }
-                var model = await ConstructBaseManagementVMAsync();
+                var model = await _systemService.ConstructBaseManagementVMAsync();
                 return View("Index", model);
             }
             catch (Exception ex)
             {
-                SetLogError(ex);
-                SetErrorViewBag();
-                return View();
+                _systemService.SetLogError(ex);
+                return RedirectToAction("Index", "Error");
             }  
-        }
-
-        [HttpPost, ActionName("DeleteBreed")]
-        public async Task<IActionResult> DeleteBreedAsync(int id)
-        {
-            try
-            {
-                var breed = await GetBreedOrNullAsync(e => e.Id == id);
-                if (breed == null)
-                {
-                    SetTempData("error", "The breed was not found!");
-                }
-                else
-                {
-                    await RemoveBreedInTheBaseAsync(breed);
-                    SetTempData("success", "The breed was removed successfully");
-
-                    return RedirectToAction("Index");
-                }
-                var model = await ConstructBaseManagementVMAsync();
-                return View("Index", model);
-            }
-            catch (Exception ex)
-            {
-                SetLogError(ex);
-                SetErrorViewBag();
-                return View();
-            }
         }
     }
 }

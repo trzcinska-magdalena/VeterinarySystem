@@ -6,7 +6,7 @@ namespace VeterinarySystem.Repository.IRepository
     {
         Task<IEnumerable<T>> GetAllAsync(bool tracking = true, params Expression<Func<T, object>>[] includeProperties);
         Task<T> GetAsync(Expression<Func<T, bool>> filter, bool tracking = true, params Expression<Func<T, object>>[] includeProperties);
-        Task<bool> BreedExistsAsync(Expression<Func<T, bool>> filter);
+        Task<bool> IsExistsAsync(Expression<Func<T, bool>> filter);
         void Add(T entity);
         void Update(T entity);
         void Remove(T entity);

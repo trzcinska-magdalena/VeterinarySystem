@@ -23,7 +23,7 @@ namespace VeterinarySystem.Repository
         }
 
         public async Task<T> GetAsync(Expression<Func<T, bool>> filter, bool tracking = true, params Expression<Func<T, object>>[] includeProperties)
-        {
+        {          
             try
             {
                 IQueryable<T> query = dbSet.Where(filter);
@@ -100,7 +100,7 @@ namespace VeterinarySystem.Repository
             }
         }
 
-        public async Task<bool> BreedExistsAsync(Expression<Func<T, bool>> filter)
+        public async Task<bool> IsExistsAsync(Expression<Func<T, bool>> filter)
         {
             try
             {

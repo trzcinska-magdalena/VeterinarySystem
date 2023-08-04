@@ -8,6 +8,7 @@ using VeterinarySystem.Models;
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
 using VeterinarySystem.Repository.IRepository;
+using VeterinarySystem.Service.IService;
 
 namespace VeterinarySystem.Areas.Employee.Controllers
 {
@@ -15,166 +16,121 @@ namespace VeterinarySystem.Areas.Employee.Controllers
     [Authorize(Roles = UserRole.Role_Admin + "," + UserRole.Role_Employee)]
     public class AnimalController : Controller
     {
+        private readonly ISystemService _systemService;
         private readonly IUnitOfWork _unitOfWork;
-        AnimalDetailViewModel animalDetailViewModel = new AnimalDetailViewModel();
-        public AnimalController(IUnitOfWork unitOfWork)
+        public AnimalController(ISystemService systemService, IUnitOfWork unitOfWork)
         {
+            _systemService = systemService;
             _unitOfWork = unitOfWork;
         }
-        public async Task<AnimalCreateViewModel> ConstructAnimalCreateVMAsync()
+
+        public void SetTempData(string tempType, string tempDataValue)
         {
-            var breeds = await _unitOfWork.Breeds.GetAllAsync(tracking: false);
-            var clients = await _unitOfWork.Clients.GetAllAsync(tracking: false);
-
-            var animalCreateViewModel = new AnimalCreateViewModel
-            {
-                Breeds = breeds.Select(breed =>
-                new SelectListItem
-                {
-                    Value = breed.Id.ToString(),
-                    Text = breed.Name
-                }),
-
-                Clients = clients.Select(client =>
-                new SelectListItem
-                {
-                    Value = client.Id.ToString(),
-                    Text = $"{client.FirstName} {client.LastMame}"
-                }),
-            };
-            return animalCreateViewModel;
-        }
-        public async Task<AnimalDetailViewModel> ConstructAnimalDetailVMAsync()
-        {
-            var typeOfVaccines = await _unitOfWork.TypeOfVaccines.GetAllAsync(tracking: false);
-            var vaccinations = await _unitOfWork.Vaccinations.GetAllAsync(tracking: false);
-            var medicines = await _unitOfWork.Medicines.GetAllAsync(tracking: false);
-            var surgeries = await _unitOfWork.Surgeries.GetAllAsync(tracking: false);
-            var vets = await _unitOfWork.Vets.GetAllAsync(tracking: false);
-
-            animalDetailViewModel.TypeOfVaccines = typeOfVaccines.Select(a =>
-            new SelectListItem
-            {
-                Value = a.Id.ToString(),
-                Text = a.Name
-            });
-
-            animalDetailViewModel.Vaccinations = vaccinations.GroupBy(a => a.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList());
-
-            animalDetailViewModel.Medicines = medicines.Select(a =>
-            new SelectListItem
-            {
-                Value = a.Id.ToString(),
-                Text = a.Name
-            });
-
-            animalDetailViewModel.Surgeries = surgeries.Select(a =>
-            new SelectListItem
-            {
-                Value = a.Id.ToString(),
-                Text = a.Name
-            });
-
-            animalDetailViewModel.Vets = vets.Select(a =>
-                new SelectListItem
-                {
-                    Value = a.Id.ToString(),
-                    Text = $"{a.FirstName} {a.LastName}"
-                });
-
-            return animalDetailViewModel;
+            TempData[tempType] = tempDataValue;
         }
 
         public async Task<IActionResult> Index()
         {
-            var animalViewModel = new AnimalViewModel
+            try
             {
-                Animals = await _unitOfWork.Animals.GetAllAsync(tracking: false, e => e.Breed, e => e.Client)
-            };
-            return View(animalViewModel);
+                var animalViewModel = await _systemService.ConstructAnimalsVWAsync();
+                return View(animalViewModel);
+            }
+            catch (Exception ex)
+            {
+                //_systemService.SetLogError(ex);
+                return RedirectToAction("Index", "Error");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Index(string searchString)
         {
-            var animalViewModel = new AnimalViewModel
+            try
             {
-                Animals = await _unitOfWork.Animals.GetAllAsync(tracking: false, e => e.Breed, e => e.Client)
-            };
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                animalViewModel.Animals = animalViewModel.Animals.Where(e => e.Name.ToLower().Contains(searchString.ToLower())).ToList();
+                var animalViewModel = await _systemService.ConstructAnimalsVWAsync(searchString);
+                return View(animalViewModel);
             }
-            return View(animalViewModel);
+            catch (Exception ex)
+            {
+                //_systemService.SetLogError(ex);
+                return RedirectToAction("Index", "Error");
+            }
         }
 
         public async Task<IActionResult> Create()
         {
-            return View(await ConstructAnimalCreateVMAsync());
+            return View(await _systemService.ConstructAnimalCreateVMAsync());
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateAsync(Animal animal)
-        {     
-            if (!ModelState.IsValid)
+        {
+            try
             {
-                return View(await ConstructAnimalCreateVMAsync());
+                if(ModelState.IsValid && await _systemService.AddNewAnimalAsync(animal))
+                {
+                    SetTempData("success", "The animal was created successfully");
+                    return RedirectToAction("Index");
+                }
+                return View(await _systemService.ConstructAnimalCreateVMAsync());
             }
-
-            _unitOfWork.Animals.Add(animal);
-            await _unitOfWork.SaveAsync();
-            TempData["success"] = "Animal created successfully";
-
-            return RedirectToAction("Index");
+            catch (Exception ex)
+            {
+                //_systemService.SetLogError(ex);
+                return RedirectToAction("Index", "Error");
+            }
         }
 
         public async Task<IActionResult> Detail(int? id, string activeTab)
         {
-            if (id == null)
+            var animal = await _systemService.GetAnimalWithDetails(id);
+            
+            if(animal != null)
             {
-                return NotFound();
+                var animalDetailModel = await _systemService.ConstructAnimalDetailVMAsync(animal, activeTab);
+                return View(animalDetailModel);
             }
-
-            var animal = await _unitOfWork.Animals.GetAsync(filter: e => e.Id == id, tracking: false, e => e.Breed, e => e.Client, e => e.Weights);
-            if (animal == null)
-            {
-                return NotFound();
-            }
-
-            var animalDetailModel = await ConstructAnimalDetailVMAsync();
-            animalDetailModel.Animal = animal;
-            animalDetailModel.Appointments = await _unitOfWork.Appointments.GetAppointmentsWithAllData((int)id);
-            animalDetailModel.ActiveTab = activeTab;
-
-            return View(animalDetailModel);
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> AddNewWeightAsync(int? id, Weight newWeight)
         {
-            if (id == null)
+            if (!_systemService.IsValidateWeightWithDate(newWeight))
             {
-                return NotFound();
-            }
-
-            var animal = await _unitOfWork.Animals.GetAsync(filter: e => e.Id == id, tracking: false);
-            if (animal == null)
-            {
-                return NotFound();
-            }
-
-            if(newWeight.Value <= 0 || newWeight.Date == default)
-            {
-                TempData["warning"] = "Invalid weight value or date";
+                SetTempData("warning", "Invalid weight value or date.");
             }
             else
             {
-                newWeight.Animal = animal;
-                _unitOfWork.Weights.Add(newWeight);
-                await _unitOfWork.SaveAsync();
-                TempData["success"] = "Weight added successfully";
+                var animal = await _systemService.GetAnimalWithDetails(id);
+                if (animal != null && await _systemService.SetWeightToAnimal(newWeight, animal))
+                {
+                    SetTempData("success", "The weight was added successfully.");
+                }
             }
             return RedirectToAction("Detail", new { id, activeTab = "Weight" });
+        }
+
+
+        // TODO
+        public async Task<IActionResult> UpdateWeightsAsync(string label, int value, int id)
+        {
+            var weight = await _systemService.GetWeight(id, DateTime.Parse(label));
+
+            if (value == 0)
+            {
+                _unitOfWork.Weights.Remove(weight);
+                await _unitOfWork.SaveAsync();
+                TempData["success"] = "Weight deleted successfully";
+            }
+            else
+            {
+                weight.Value = value;
+                _unitOfWork.Weights.Update(weight);
+                await _unitOfWork.SaveAsync();
+                TempData["success"] = "Weight updated successfully";
+            }
+            return Ok();
         }
 
         public async Task<IActionResult> AddNewVaccinationAsync(int? id, Vaccination newVaccination)
@@ -184,21 +140,18 @@ namespace VeterinarySystem.Areas.Employee.Controllers
                 return NotFound();
             }
          
-            if(newVaccination.TypeOfVaccineId == 0 && newVaccination.Date == default && newVaccination.ExpiryDate == default)
+            if(!_systemService.IsValidateVaccination(newVaccination))
             {
-                TempData["warning"] = "Invalid type of vaccine or date";
+                //_systemService.SetTempData(TempData, "warning", "Invalid type of vaccine or date.");
             }
             else
             {
                 newVaccination.AnimalId = (int)id;
                 newVaccination.TypeOfVaccineId = newVaccination.TypeOfVaccineId;
 
-                //newVaccination.Animal = await _unitOfWork.Animals.GetAsync(filter: e => e.Id == id, tracking: false);
-                //newVaccination.TypeOfVaccine = await _unitOfWork.TypeOfVaccines.GetAsync(filter: e => e.Id == newVaccination.TypeOfVaccineId, tracking: false);
-
                 _unitOfWork.Vaccinations.Add(newVaccination);
                 await _unitOfWork.SaveAsync();
-                TempData["success"] = "Vaccination added successfully";
+                //_systemService.SetTempData(TempData, "success", "The vaccination was added successfully.");
             }
             return RedirectToAction("Detail", new { id, activeTab = "Vaccination" });
         }
@@ -224,25 +177,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             return RedirectToAction("Detail", new { id, activeTab = "Appointment" });
         }
 
-        public async Task<IActionResult> UpdateWeightsAsync(string label, int value, int id)
-        {
-            var weight = await _unitOfWork.Weights.GetAsync(filter: e => e.AnimalId == id && e.Date == DateTime.Parse(label));
-
-            if (value == 0)
-            {
-                _unitOfWork.Weights.Remove(weight);
-                await _unitOfWork.SaveAsync();
-                TempData["success"] = "Weight deleted successfully";
-            }
-            else
-            {
-                weight.Value = value;
-                _unitOfWork.Weights.Update(weight);
-                await _unitOfWork.SaveAsync();
-                TempData["success"] = "Weight updated successfully";
-            }
-            return Ok();
-        }
+        
 
         public async Task<IActionResult> GetAllAppointmentsAsync(int id)
         {
@@ -263,7 +198,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             Console.WriteLine(id);
 
-            animalDetailViewModel.Appointment = await _unitOfWork.Appointments.GetAsync(filter: e => e.Id == id, tracking: false);
+            //animalDetailViewModel.Appointment = await _unitOfWork.Appointments.GetAsync(filter: e => e.Id == id, tracking: false);
             return Ok();
         }
     }

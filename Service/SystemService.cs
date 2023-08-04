@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Newtonsoft.Json.Linq;
 using System.Linq.Expressions;
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
@@ -80,7 +81,6 @@ namespace VeterinarySystem.Service
         }
 
 
-
         // Animal Controller
         public async Task<AnimalsViewModel> ConstructAnimalsVWAsync(string? searchString = null)
         {
@@ -104,74 +104,100 @@ namespace VeterinarySystem.Service
 
             var animalCreateViewModel = new AnimalCreateViewModel
             {
-                AllBreeds = breeds.Select(breed =>
+                AllBreeds = breeds.Select(e =>
                 new SelectListItem
                 {
-                    Value = breed.Id.ToString(),
-                    Text = breed.Name
+                    Value = e.Id.ToString(),
+                    Text = e.Name
                 }),
 
-                AllClients = clients.Select(client =>
+                AllClients = clients.Select(e =>
                 new SelectListItem
                 {
-                    Value = client.Id.ToString(),
-                    Text = $"{client.FirstName} {client.LastMame}"
+                    Value = e.Id.ToString(),
+                    Text = $"{e.FirstName} {e.LastMame}"
                 }),
             };
             return animalCreateViewModel;
         }
 
-        public async Task<AnimalDetailViewModel> ConstructAnimalDetailVMAsync()
+        public async Task<AnimalDetailViewModel> ConstructAnimalDetailVMAsync(Animal animal, string activeTab)
         {
             var typeOfVaccines = await _unitOfWork.TypeOfVaccines.GetAllAsync(tracking: false);
-            var vaccinations = await _unitOfWork.Vaccinations.GetAllAsync(tracking: false);
+            var vaccinations = await _unitOfWork.Vaccinations.GetAllAsync(tracking: false, e => e.TypeOfVaccine);
             var medicines = await _unitOfWork.Medicines.GetAllAsync(tracking: false);
             var surgeries = await _unitOfWork.Surgeries.GetAllAsync(tracking: false);
             var vets = await _unitOfWork.Vets.GetAllAsync(tracking: false);
 
-            AnimalDetailViewModel animalDetailViewModel = new AnimalDetailViewModel();
-
-            animalDetailViewModel.TypeOfVaccines = typeOfVaccines.Select(a =>
-            new SelectListItem
+            AnimalDetailViewModel animalDetailViewModel = new AnimalDetailViewModel()
             {
-                Value = a.Id.ToString(),
-                Text = a.Name
-            });
+                TypeOfVaccines = typeOfVaccines.Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = e.Name
+                }),
 
-            animalDetailViewModel.Vaccinations = vaccinations.GroupBy(a => a.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList());
+                Medicines = medicines.Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = e.Name
+                }),
 
-            animalDetailViewModel.Medicines = medicines.Select(a =>
-            new SelectListItem
-            {
-                Value = a.Id.ToString(),
-                Text = a.Name
-            });
-
-            animalDetailViewModel.Surgeries = surgeries.Select(a =>
-            new SelectListItem
-            {
-                Value = a.Id.ToString(),
-                Text = a.Name
-            });
-
-            animalDetailViewModel.Vets = vets.Select(a =>
+                Surgeries = surgeries.Select(e =>
                 new SelectListItem
                 {
-                    Value = a.Id.ToString(),
-                    Text = $"{a.FirstName} {a.LastName}"
-                });
+                    Value = e.Id.ToString(),
+                    Text = e.Name
+                }),
 
+                Vets = vets.Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = $"{e.FirstName} {e.LastName}"
+                }),
+
+                Animal = animal,
+                Appointments = await _unitOfWork.Appointments.GetAppointmentsWithAllData(animal.Id),
+                Vaccinations = vaccinations.Where(e => e.AnimalId == animal.Id).GroupBy(e => e.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList()),
+                ActiveTab = activeTab
+            };
             return animalDetailViewModel;
         }
 
-        public void SetAnimalDetailViewModel()
+        public async Task<bool> AddNewAnimalAsync(Animal animal)
         {
+            _unitOfWork.Animals.Add(animal);
+            await _unitOfWork.SaveAsync();
+            return true;
+        }
 
+        public async Task<Animal?> GetAnimalWithDetails(int? id)
+        {
+            if (id == null)
+            {
+                return null; // throw exception ?? TODO
+            }
+
+            var animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id, false, e => e.Breed, e => e.Client, e => e.Weights);
+            return animal;
         }
 
         public bool IsValidateWeightWithDate(Weight weight)
         {
             return !(weight.Value <= 0 || weight.Date == default);
+        }
+
+        public async Task<bool> SetWeightToAnimal(Weight weight, Animal animal)
+        {
+            weight.Animal = animal;
+            _unitOfWork.Weights.Add(weight);
+            await _unitOfWork.SaveAsync();
+            return true;
+        }
+
+        public async Task<Weight> GetWeight(int id, DateTime date)
+        {
+            return await _unitOfWork.Weights.GetAsync(filter: e => e.AnimalId == id && e.Date == date);
         }
 
         public bool IsValidateVaccination(Vaccination vaccination)

@@ -18,9 +18,12 @@ namespace VeterinarySystem.Service.IService
         // Animal Controller
         Task<AnimalsViewModel> ConstructAnimalsVWAsync(string? searchString = null);
         Task<AnimalCreateViewModel> ConstructAnimalCreateVMAsync();
-        Task<AnimalDetailViewModel> ConstructAnimalDetailVMAsync();
-        void SetAnimalDetailViewModel();
+        Task<AnimalDetailViewModel> ConstructAnimalDetailVMAsync(Animal animal, string activeTab);
+        Task<bool> AddNewAnimalAsync(Animal animal);
+        Task<Animal?> GetAnimalWithDetails(int? id);
         bool IsValidateWeightWithDate(Weight newWeight);
+        Task<bool> SetWeightToAnimal(Weight weight, Animal animal);
+        Task<Weight> GetWeight(int id, DateTime date);
         bool IsValidateVaccination(Vaccination vaccination);
     }
 }

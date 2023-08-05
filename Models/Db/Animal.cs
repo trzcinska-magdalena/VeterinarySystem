@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.Build.Framework;
 
 namespace VeterinarySystem.Models.Db
 {
@@ -8,6 +9,7 @@ namespace VeterinarySystem.Models.Db
 
         public string Name { get; set; } = null!;
 
+        [NotInFuture(ErrorMessage = "Date of birth cannot be future.")]
         public DateTime BirthDate { get; set; }
 
         public int BreedId { get; set; }

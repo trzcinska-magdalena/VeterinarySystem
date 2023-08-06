@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq.Expressions;
 using VeterinarySystem.Data;
@@ -82,116 +83,113 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             }
         }
 
-        public async Task<IActionResult> Detail(int? id, string activeTab)
+        public async Task<IActionResult> Detail([Required]int id, string activeTab)
         {
-            var animal = await _systemService.GetAnimalWithDetails(id);
-            
-            if(animal != null)
+            if(!_systemService.IsValidTheActiveTab(activeTab))
             {
-                var animalDetailModel = await _systemService.ConstructAnimalDetailVMAsync(animal, activeTab);
-                return View(animalDetailModel);
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
+
+            try
+            {
+                var animal = await _systemService.GetAnimalWithDetails(id);
+                if (animal != null)
+                {
+                    var animalDetailModel = await _systemService.ConstructAnimalDetailVMAsync(animal, activeTab);
+                    return View(animalDetailModel);
+                }
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                //_systemService.SetLogError(ex);
+                return RedirectToAction("Index", "Error");
+            }        
         }
 
-        public async Task<IActionResult> AddNewWeightAsync(int? id, Weight newWeight)
+        public async Task<IActionResult> AddNewWeightAsync([Required]int id, Weight newWeight)
         {
-            if (!_systemService.IsValidateWeightWithDate(newWeight))
+            if (!TryValidateModel(newWeight))
             {
                 SetTempData("warning", "Invalid weight value or date.");
             }
             else
             {
-                var animal = await _systemService.GetAnimalWithDetails(id);
-                if (animal != null && await _systemService.SetWeightToAnimal(newWeight, animal))
+                try
                 {
-                    SetTempData("success", "The weight was added successfully.");
+                    var animal = await _systemService.GetAnimalWithDetails(id);
+                    if (animal != null && await _systemService.AddWeightToAnimal(newWeight, animal))
+                    {
+                        SetTempData("success", "The weight was added successfully.");
+                    }
                 }
+                catch (Exception ex)
+                {
+                    //_systemService.SetLogError(ex);
+                    return RedirectToAction("Index", "Error");
+                }              
             }
+
             return RedirectToAction("Detail", new { id, activeTab = "Weight" });
         }
 
-
-        // TODO
         public async Task<IActionResult> UpdateWeightsAsync(string label, int value, int id)
         {
-            var weight = await _systemService.GetWeight(id, DateTime.Parse(label));
+            try
+            {
+                var weight = await _systemService.GetWeight(id, DateTime.Parse(label));
 
-            if (value == 0)
-            {
-                _unitOfWork.Weights.Remove(weight);
-                await _unitOfWork.SaveAsync();
-                TempData["success"] = "Weight deleted successfully";
+                (var success, var message) = await _systemService.UpdateWeight(weight, value);
+
+                if (!success)
+                {
+                    return Conflict();
+                }
+                TempData["success"] = message;
+                return Ok();
             }
-            else
+            catch (Exception ex)
             {
-                weight.Value = value;
-                _unitOfWork.Weights.Update(weight);
-                await _unitOfWork.SaveAsync();
-                TempData["success"] = "Weight updated successfully";
+                //_systemService.SetLogError(ex);
+                return RedirectToAction("Index", "Error");
             }
-            return Ok();
         }
 
-        public async Task<IActionResult> AddNewVaccinationAsync(int? id, Vaccination newVaccination)
+        public async Task<IActionResult> AddNewVaccinationAsync([Required] int id, Vaccination newVaccination)
         {
-            if (id == null)
+            if(!TryValidateModel(newVaccination))
             {
-                return NotFound();
-            }
-         
-            if(!_systemService.IsValidateVaccination(newVaccination))
-            {
-                //_systemService.SetTempData(TempData, "warning", "Invalid type of vaccine or date.");
+                SetTempData("warning", "Invalid type of vaccine or date.");
             }
             else
             {
-                newVaccination.AnimalId = (int)id;
-                newVaccination.TypeOfVaccineId = newVaccination.TypeOfVaccineId;
-
-                _unitOfWork.Vaccinations.Add(newVaccination);
-                await _unitOfWork.SaveAsync();
-                //_systemService.SetTempData(TempData, "success", "The vaccination was added successfully.");
+                try
+                {
+                    if (await _systemService.AddVaccinationToAnimal(newVaccination, id))
+                    {
+                        SetTempData("success", "The vaccination was added successfully.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //_systemService.SetLogError(ex);
+                    return RedirectToAction("Index", "Error");
+                }
             }
             return RedirectToAction("Detail", new { id, activeTab = "Vaccination" });
         }
 
-        public async Task<IActionResult> AddNewAppointmentAsync(int? id, Appointment newAppointment)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            if (newAppointment.Date == default || string.IsNullOrEmpty(newAppointment.Description))
-            {
-                TempData["warning"] = "Invalid description or date";
-            }
-            else
-            {
-                newAppointment.Animal = await _unitOfWork.Animals.GetAsync(filter: e => e.Id == id, tracking: false);
-                _unitOfWork.Appointments.Add(newAppointment);
-                await _unitOfWork.SaveAsync();
-                TempData["success"] = "Appointment added successfully";
-            }
-            return RedirectToAction("Detail", new { id, activeTab = "Appointment" });
-        }
-
-        
-
         public async Task<IActionResult> GetAllAppointmentsAsync(int id)
         {
-            var appointmants = await _unitOfWork.Appointments.GetAppointmentsWithAllData(id);
-
-            var events = appointmants.Select(e => new Event
+            try
             {
-                Id = e.Id,
-                Title = e.Description,
-                Description = e.Description,
-                Start = e.Date.ToString("yyyy-MM-dd HH:mm")
-            });
-
-            return new JsonResult(events);
+                return new JsonResult(await _systemService.GetAllAppointmentsAsEvent(id));
+            }
+            catch (Exception ex)
+            {
+                //_systemService.SetLogError(ex);
+                return Conflict();
+            }          
         }
 
         public async Task<IActionResult> ShowAppointmentInfoAsync(int id)

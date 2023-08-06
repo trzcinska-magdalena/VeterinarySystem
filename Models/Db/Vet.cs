@@ -1,11 +1,13 @@
-﻿namespace VeterinarySystem.Models.Db
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace VeterinarySystem.Models.Db
 {
     public class Vet
     {
         public int Id { get; set; }
-
+        [MinLength(3)]
         public string FirstName { get; set; } = null!;
-
+        [MinLength(5)]
         public string LastName { get; set; } = null!;
 
         public byte[]? Photo { get; set; }

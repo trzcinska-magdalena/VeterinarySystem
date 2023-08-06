@@ -1,4 +1,6 @@
-﻿namespace VeterinarySystem.Models.Db
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace VeterinarySystem.Models.Db
 {
     public class Appointment
     {
@@ -6,7 +8,7 @@
         public int AnimalId { get; set; }
 
         public DateTime Date { get; set; }
-
+        [MinLength(3)]
         public string Description { get; set; } = null!;
 
         public virtual Animal Animal { get; set; } = null!;

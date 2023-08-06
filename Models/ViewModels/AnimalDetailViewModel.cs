@@ -13,20 +13,20 @@ namespace VeterinarySystem.Models.ViewModels
         public Appointment? NewAppointment { get; set; }
 
         [ValidateNever]
-        public IEnumerable<Appointment> Appointments { get; set; } = null!;
+        public IEnumerable<Appointment> AllAppointments { get; set; } = null!;
         [ValidateNever]
-        public IEnumerable<SelectListItem> TypeOfVaccines { get; set; } = null!;
+        public IEnumerable<SelectListItem> AllTypeOfVaccines { get; set; } = null!;
         [ValidateNever]
-        public Dictionary<string, List<Vaccination>> Vaccinations { get; set; } = null!;
+        public Dictionary<string, List<Vaccination>> AllVaccinations { get; set; } = null!;
 
         [ValidateNever]
-        public IEnumerable<SelectListItem> Medicines { get; set; } = null!;
+        public IEnumerable<SelectListItem> AllMedicines { get; set; } = null!;
 
         [ValidateNever]
-        public IEnumerable<SelectListItem> Surgeries { get; set; } = null!;
+        public IEnumerable<SelectListItem> AllSurgeries { get; set; } = null!;
 
         [ValidateNever]
-        public IEnumerable<SelectListItem> Vets { get; set; } = null!;
+        public IEnumerable<SelectListItem> AllVets { get; set; } = null!;
 
         [ValidateNever]
         public Appointment Appointment { get; set; } = null!;

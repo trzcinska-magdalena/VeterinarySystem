@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Build.Framework;
+using System.ComponentModel.DataAnnotations;
 using VeterinarySystem.Attributes;
 
 namespace VeterinarySystem.Models.Db
@@ -16,7 +17,7 @@ namespace VeterinarySystem.Models.Db
         public int BreedId { get; set; }
 
         public int ClientId { get; set; }
-
+        [StringLength(1)]
         public string Gender { get; set; } = null!;
 
         [ValidateNever]

@@ -4,6 +4,7 @@ using VeterinarySystem.Repository;
 using VeterinarySystem.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
 using VeterinarySystem.Service;
+using VeterinarySystem.Service.IService;
 
 var builder = WebApplication.CreateBuilder(args);
 

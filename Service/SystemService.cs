@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json.Linq;
 using System.Linq.Expressions;
+using VeterinarySystem.Models;
 using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
 using VeterinarySystem.Repository.IRepository;
@@ -29,6 +30,16 @@ namespace VeterinarySystem.Service
             // TODO
         }
 
+        private IEnumerable<SelectListItem> GetSelectListItems<T>(IEnumerable<T> entities, Func<T, string> textSelector, Func<T, string> valueSelector)
+        {
+            var selectListItems = entities.Select(e => new SelectListItem
+            {
+                Value = valueSelector(e),
+                Text = textSelector(e)
+            });
+
+            return selectListItems;
+        }
 
         // Base Management Controller
         public async Task<BaseManagementViewModel> ConstructBaseManagementVMAsync()
@@ -80,7 +91,6 @@ namespace VeterinarySystem.Service
             return (true, "");
         }
 
-
         // Animal Controller
         public async Task<AnimalsViewModel> ConstructAnimalsVWAsync(string? searchString = null)
         {
@@ -104,19 +114,8 @@ namespace VeterinarySystem.Service
 
             var animalCreateViewModel = new AnimalCreateViewModel
             {
-                AllBreeds = breeds.Select(e =>
-                new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = e.Name
-                }),
-
-                AllClients = clients.Select(e =>
-                new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = $"{e.FirstName} {e.LastMame}"
-                }),
+                AllBreeds = GetSelectListItems(breeds, e => e.Id.ToString(), e => e.Name),
+                AllClients = GetSelectListItems(clients, e => e.Id.ToString(), e => $"{e.FirstName} {e.LastMame}")
             };
             return animalCreateViewModel;
         }
@@ -131,31 +130,10 @@ namespace VeterinarySystem.Service
 
             AnimalDetailViewModel animalDetailViewModel = new AnimalDetailViewModel()
             {
-                TypeOfVaccines = typeOfVaccines.Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = e.Name
-                }),
-
-                Medicines = medicines.Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = e.Name
-                }),
-
-                Surgeries = surgeries.Select(e =>
-                new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = e.Name
-                }),
-
-                Vets = vets.Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = $"{e.FirstName} {e.LastName}"
-                }),
-
+                TypeOfVaccines = GetSelectListItems(typeOfVaccines, e => e.Id.ToString(), e => e.Name),
+                Medicines = GetSelectListItems(medicines, e => e.Id.ToString(), e => e.Name),
+                Surgeries = GetSelectListItems(surgeries, e => e.Id.ToString(), e => e.Name),
+                Vets = GetSelectListItems(vets, e => e.Id.ToString(), e => $"{e.FirstName} {e.LastName}"),
                 Animal = animal,
                 Appointments = await _unitOfWork.Appointments.GetAppointmentsWithAllData(animal.Id),
                 Vaccinations = vaccinations.Where(e => e.AnimalId == animal.Id).GroupBy(e => e.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList()),
@@ -171,23 +149,24 @@ namespace VeterinarySystem.Service
             return true;
         }
 
-        public async Task<Animal?> GetAnimalWithDetails(int? id)
-        {
-            if (id == null)
-            {
-                return null; // throw exception ?? TODO
-            }
-
+        public async Task<Animal?> GetAnimalWithDetails(int id)
+        {         
             var animal = await _unitOfWork.Animals.GetAsync(e => e.Id == id, false, e => e.Breed, e => e.Client, e => e.Weights);
             return animal;
         }
 
-        public bool IsValidateWeightWithDate(Weight weight)
+        public bool IsValidTheActiveTab(string activeTab)
         {
-            return !(weight.Value <= 0 || weight.Date == default);
+            string[] activeTabs = { "Weight", "Appointment", "Vaccination" };
+
+            if(!activeTabs.Contains(activeTab))
+            {
+                return false;
+            }
+            return true;
         }
 
-        public async Task<bool> SetWeightToAnimal(Weight weight, Animal animal)
+        public async Task<bool> AddWeightToAnimal(Weight weight, Animal animal)
         {
             weight.Animal = animal;
             _unitOfWork.Weights.Add(weight);
@@ -200,9 +179,44 @@ namespace VeterinarySystem.Service
             return await _unitOfWork.Weights.GetAsync(filter: e => e.AnimalId == id && e.Date == date);
         }
 
-        public bool IsValidateVaccination(Vaccination vaccination)
+        public async Task<(bool, string)> UpdateWeight(Weight weight, int value)
         {
-            return !(vaccination.TypeOfVaccineId == 0 || vaccination.Date == default || vaccination.ExpiryDate == default);
+            if (value == 0)
+            {
+                _unitOfWork.Weights.Remove(weight);
+                await _unitOfWork.SaveAsync();
+                return (true, "Weight deleted successfully");
+            }
+            else
+            {
+                weight.Value = value;
+                _unitOfWork.Weights.Update(weight);
+                await _unitOfWork.SaveAsync();
+                return (true, "Weight updated successfully");
+            }
         }
+
+        public async Task<bool> AddVaccinationToAnimal(Vaccination vaccination, int animalId)
+        {
+            vaccination.AnimalId = animalId;
+            _unitOfWork.Vaccinations.Add(vaccination);
+            await _unitOfWork.SaveAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<Event>> GetAllAppointmentsAsEvent(int animalId)
+        {
+            var appointmants = await _unitOfWork.Appointments.GetAppointmentsWithAllData(animalId);
+
+            var events = appointmants.Select(e => new Event
+            {
+                Id = e.Id,
+                Title = e.Description,
+                Description = e.Description,
+                Start = e.Date.ToString("yyyy-MM-dd HH:mm")
+            });
+            return events;
+        }
+
     }
 }

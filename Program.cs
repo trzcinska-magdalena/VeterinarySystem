@@ -5,6 +5,7 @@ using VeterinarySystem.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
 using VeterinarySystem.Service;
 using VeterinarySystem.Service.IService;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
+
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddSerilog(new LoggerConfiguration()
+        .WriteTo.Console()
+        .CreateLogger());
+});
 
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

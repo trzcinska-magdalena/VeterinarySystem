@@ -30,7 +30,7 @@ namespace VeterinarySystem.Service
             // TODO
         }
 
-        private IEnumerable<SelectListItem> GetSelectListItems<T>(IEnumerable<T> entities, Func<T, string> textSelector, Func<T, string> valueSelector)
+        private IEnumerable<SelectListItem> GetSelectListItems<T>(IEnumerable<T> entities, Func<T, string> valueSelector, Func<T, string> textSelector)
         {
             var selectListItems = entities.Select(e => new SelectListItem
             {
@@ -130,13 +130,13 @@ namespace VeterinarySystem.Service
 
             AnimalDetailViewModel animalDetailViewModel = new AnimalDetailViewModel()
             {
-                TypeOfVaccines = GetSelectListItems(typeOfVaccines, e => e.Id.ToString(), e => e.Name),
-                Medicines = GetSelectListItems(medicines, e => e.Id.ToString(), e => e.Name),
-                Surgeries = GetSelectListItems(surgeries, e => e.Id.ToString(), e => e.Name),
-                Vets = GetSelectListItems(vets, e => e.Id.ToString(), e => $"{e.FirstName} {e.LastName}"),
+                AllTypeOfVaccines = GetSelectListItems(typeOfVaccines, e => e.Id.ToString(), e => e.Name),
+                AllMedicines = GetSelectListItems(medicines, e => e.Id.ToString(), e => e.Name),
+                AllSurgeries = GetSelectListItems(surgeries, e => e.Id.ToString(), e => e.Name),
+                AllVets = GetSelectListItems(vets, e => e.Id.ToString(), e => $"{e.FirstName} {e.LastName}"),
                 Animal = animal,
-                Appointments = await _unitOfWork.Appointments.GetAppointmentsWithAllData(animal.Id),
-                Vaccinations = vaccinations.Where(e => e.AnimalId == animal.Id).GroupBy(e => e.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList()),
+                AllAppointments = await _unitOfWork.Appointments.GetAppointmentsWithAllData(animal.Id),
+                AllVaccinations = vaccinations.Where(e => e.AnimalId == animal.Id).GroupBy(e => e.TypeOfVaccine.Name).ToDictionary(e => e.Key, e => e.ToList()),
                 ActiveTab = activeTab
             };
             return animalDetailViewModel;

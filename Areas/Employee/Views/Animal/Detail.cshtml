@@ -68,7 +68,7 @@
 
                 <div class="tab-pane fade @(Model.ActiveTab == "Vaccination" ? "active show" : "")" id="vaccination" role="tabpanel">
                     <form method="post" class="input-group mb-3" asp-route-id="@Model.Animal.Id" asp-action="AddNewVaccination">
-                        <select class="form-select" asp-items="Model.TypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
+                        <select class="form-select" asp-items="Model.AllTypeOfVaccines" asp-for="NewVaccination.TypeOfVaccineId">
                             <option style="display:none">Name</option>
                         </select>
 
@@ -77,14 +77,14 @@
                         <button class="btn btn-primary px-3" type="submit" id="button-add">Add</button>
                     </form>
 
-                    @if (Model.Vaccinations.Count() == 0)
+                    @if (Model.AllVaccinations.Count() == 0)
                     {
                         <div class="text-center">No data available</div>
                     }
                     else
                     {
                         <div class="accordion">
-                            @foreach (var vaccination in Model.Vaccinations)
+                            @foreach (var vaccination in Model.AllVaccinations)
                             {
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="@vaccination.Key.Replace(" ", "")">
@@ -219,19 +219,19 @@
                     <div>
                         <div class="mb-3">
                             <label for="exampleSelect2" class="form-label">Medicine</label>
-                            <select id="exampleSelect2" multiple class="form-select" asp-items="Model.Medicines" asp-for="NewVaccination.TypeOfVaccineId">
+                            <select id="exampleSelect2" multiple class="form-select" asp-items="Model.AllMedicines" asp-for="NewVaccination.TypeOfVaccineId">
                                 <option style="display:none">Name</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="exampleSelect2" class="form-label">Surgery</label>
-                            <select id="exampleSelect2" multiple class="form-select" asp-items="Model.Surgeries" asp-for="NewVaccination.TypeOfVaccineId">
+                            <select id="exampleSelect2" multiple class="form-select" asp-items="Model.AllSurgeries" asp-for="NewVaccination.TypeOfVaccineId">
                                 <option style="display:none">Name</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="exampleSelect2" class="form-label">Vet</label>
-                            <select id="exampleSelect2" multiple class="form-select" asp-items="Model.Vets" asp-for="NewVaccination.TypeOfVaccineId">
+                            <select id="exampleSelect2" multiple class="form-select" asp-items="Model.AllVets" asp-for="NewVaccination.TypeOfVaccineId">
                                 <option style="display:none">Name</option>
                             </select>
                         </div>

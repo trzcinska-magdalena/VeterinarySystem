@@ -1,4 +1,5 @@
-﻿using VeterinarySystem.Models.Db;
+﻿using Serilog;
+using VeterinarySystem.Models.Db;
 using VeterinarySystem.Models.ViewModels;
 using VeterinarySystem.Repository.IRepository;
 using VeterinarySystem.Service.IService;
@@ -17,6 +18,8 @@ namespace VeterinarySystem.Service
         }
         public async Task<BaseManagementViewModel> ConstructBaseManagementVMAsync()
         {
+            _logger.SetLogInfo("Starting ConstructBaseManagementVMAsync method.");
+
             var baseManagementViewModel = new BaseManagementViewModel
             {
                 AllBreeds = await _unitOfWork.Breeds.GetAllAsync(tracking: false)
@@ -26,6 +29,7 @@ namespace VeterinarySystem.Service
 
         public async Task<bool> AddNewBreedAsync(Breed breed)
         {
+            _logger.SetLogInfo("Starting AddNewBreedAsync method.");
 
             if (await _unitOfWork.Breeds.IsExistsAsync(e => e.Name == breed.Name))
             {
@@ -42,6 +46,8 @@ namespace VeterinarySystem.Service
 
         public async Task<(bool, string)> UpdateBreedAsync(Breed breed)
         {
+            _logger.SetLogInfo("Starting UpdateBreedAsync method.");
+
             if (await _unitOfWork.Breeds.IsExistsAsync(e => e.Name == breed.Name))
             {
                 _logger.SetLogWarning($"The breed named {breed.Name} already exists. The breed not updated.");

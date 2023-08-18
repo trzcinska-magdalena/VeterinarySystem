@@ -35,7 +35,10 @@ builder.Services.AddLogging(loggingBuilder =>
 
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<ISystemService, SystemService>();
+builder.Services.AddScoped<IAnimalService, AnimalService>();
+builder.Services.AddScoped<IBaseManagementService, BaseManagementService>();
+builder.Services.AddScoped<IGlobalService, GlobalService>();
+builder.Services.AddScoped<ILoggerService, LoggerService>();
 
 var app = builder.Build();
 

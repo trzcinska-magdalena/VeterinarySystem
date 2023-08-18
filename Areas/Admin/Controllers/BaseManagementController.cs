@@ -17,12 +17,12 @@ namespace VeterinarySystem.Areas.Admin.Controllers
     public class BaseManagementController : Controller
     {
         private readonly IBaseManagementService _baseManagement;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILoggerService _loggerService;
 
-        public BaseManagementController(IBaseManagementService baseManagement, IUnitOfWork unitOfWork)
+        public BaseManagementController(IBaseManagementService baseManagement, ILoggerService loggerService)
         {
             _baseManagement = baseManagement;
-            _unitOfWork = unitOfWork;
+            _loggerService = loggerService;
         }
 
         public void SetTempData(string tempType, string tempDataValue)
@@ -39,7 +39,7 @@ namespace VeterinarySystem.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                _baseManagement.SetLogError(ex);
+                _loggerService.SetLogError(ex);
                 return RedirectToAction("Index", "Error");
             }
         }

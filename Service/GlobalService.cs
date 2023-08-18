@@ -5,14 +5,21 @@ namespace VeterinarySystem.Service
 {
     public class GlobalService : IGlobalService
     {
-        public IEnumerable<SelectListItem> GetSelectListItems<T>(IEnumerable<T> entities, Func<T, string> valueSelector, Func<T, string> textSelector)
+        private readonly ILoggerService _loggerService;
+
+        public GlobalService(ILoggerService loggerService)
         {
-            var selectListItems = entities.Select(e => new SelectListItem
+            _loggerService = loggerService;
+        }
+        public IEnumerable<SelectListItem> GetSelectListItems<T>(IEnumerable<T> entity, Func<T, string> valueSelector, Func<T, string> textSelector)
+        {
+            _loggerService.SetLogInfo($"Starting GetSelectListItems method with {entity.Count()} records");
+
+            var selectListItems = entity.Select(e => new SelectListItem
             {
                 Value = valueSelector(e),
                 Text = textSelector(e)
             });
-
             return selectListItems;
         }
     }

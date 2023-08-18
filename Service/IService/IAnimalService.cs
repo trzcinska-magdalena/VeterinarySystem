@@ -6,16 +6,8 @@ using VeterinarySystem.Models.ViewModels;
 
 namespace VeterinarySystem.Service.IService
 {
-    public interface ISystemService
+    public interface IAnimalService
     {
-        void SetLogError(Exception ex);
-        void SetLogInfo(string information);
-
-        // Base Management Controller
-        Task<BaseManagementViewModel> ConstructBaseManagementVMAsync();
-        Task<bool> AddNewBreedAsync(Breed breed);
-        Task<(bool, string)> UpdateBreedAsync(Breed breed);
-
         // Animal Controller
         Task<AnimalsViewModel> ConstructAnimalsVWAsync(string? searchString = null);
         Task<AnimalCreateViewModel> ConstructAnimalCreateVMAsync();

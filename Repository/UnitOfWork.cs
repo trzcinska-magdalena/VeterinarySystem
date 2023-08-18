@@ -7,6 +7,7 @@ namespace VeterinarySystem.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
+        private readonly ILogger<UnitOfWork> _logger;
         private VeterinarySystemContext _db;
         public IRepository<Animal> Animals { get; private set; }
         public IRepository<Client> Clients { get; private set; }
@@ -22,7 +23,7 @@ namespace VeterinarySystem.Repository
         public IRepository<AppointmentVet> AppointmentVets { get; private set; }
         public IAppointmentRepository Appointments { get; private set; }
 
-        public UnitOfWork(VeterinarySystemContext db)
+        public UnitOfWork(VeterinarySystemContext db, ILogger<UnitOfWork> logger)
         {
             _db = db;
             Animals = new Repository<Animal>(_db);
@@ -38,6 +39,7 @@ namespace VeterinarySystem.Repository
             Specialisations = new Repository<Specialisation>(_db);
             VetSpecialisations = new Repository<VetSpecialisation>(_db);
             AppointmentVets = new Repository<AppointmentVet>(_db);
+            _logger = logger;
         }
 
         public async Task SaveAsync()
@@ -48,13 +50,13 @@ namespace VeterinarySystem.Repository
             }
             catch(DbUpdateException ex) 
             {
-                // TODO - Log the error details to the log file
+                _logger.LogError(ex, "An error occurred in SaveAsync.");
 
                 throw new DbUpdateException("An error occurred while saving data to the database.", ex);
             }
             catch(Exception ex) 
             {
-                // TODO - Log the error details to the log file
+                _logger.LogError(ex, "An error occurred in SaveAsync.");
 
                 throw new Exception("Unknown error occurred while saving data to the database.", ex);
             }

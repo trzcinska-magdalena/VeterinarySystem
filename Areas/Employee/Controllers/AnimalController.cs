@@ -17,11 +17,11 @@ namespace VeterinarySystem.Areas.Employee.Controllers
     [Authorize(Roles = UserRole.Role_Admin + "," + UserRole.Role_Employee)]
     public class AnimalController : Controller
     {
-        private readonly ISystemService _systemService;
+        private readonly IAnimalService _animalService;
         private readonly IUnitOfWork _unitOfWork;
-        public AnimalController(ISystemService systemService, IUnitOfWork unitOfWork)
+        public AnimalController(IAnimalService animalService, IUnitOfWork unitOfWork)
         {
-            _systemService = systemService;
+            _animalService = animalService;
             _unitOfWork = unitOfWork;
         }
 
@@ -34,7 +34,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             try
             {
-                var animalViewModel = await _systemService.ConstructAnimalsVWAsync();
+                var animalViewModel = await _animalService.ConstructAnimalsVWAsync();
                 return View(animalViewModel);
             }
             catch (Exception ex)
@@ -49,7 +49,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             try
             {
-                var animalViewModel = await _systemService.ConstructAnimalsVWAsync(searchString);
+                var animalViewModel = await _animalService.ConstructAnimalsVWAsync(searchString);
                 return View(animalViewModel);
             }
             catch (Exception ex)
@@ -61,7 +61,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
 
         public async Task<IActionResult> Create()
         {
-            return View(await _systemService.ConstructAnimalCreateVMAsync());
+            return View(await _animalService.ConstructAnimalCreateVMAsync());
         }
 
         [HttpPost]
@@ -69,12 +69,12 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             try
             {
-                if(ModelState.IsValid && await _systemService.AddNewAnimalAsync(animal))
+                if(ModelState.IsValid && await _animalService.AddNewAnimalAsync(animal))
                 {
                     SetTempData("success", "The animal was created successfully");
                     return RedirectToAction("Index");
                 }
-                return View(await _systemService.ConstructAnimalCreateVMAsync());
+                return View(await _animalService.ConstructAnimalCreateVMAsync());
             }
             catch (Exception ex)
             {
@@ -85,17 +85,17 @@ namespace VeterinarySystem.Areas.Employee.Controllers
 
         public async Task<IActionResult> Detail([Required]int id, string activeTab)
         {
-            if(!_systemService.IsValidTheActiveTab(activeTab))
+            if(!_animalService.IsValidTheActiveTab(activeTab))
             {
                 return RedirectToAction("Index");
             }
 
             try
             {
-                var animal = await _systemService.GetAnimalWithDetails(id);
+                var animal = await _animalService.GetAnimalWithDetails(id);
                 if (animal != null)
                 {
-                    var animalDetailModel = await _systemService.ConstructAnimalDetailVMAsync(animal, activeTab);
+                    var animalDetailModel = await _animalService.ConstructAnimalDetailVMAsync(animal, activeTab);
                     return View(animalDetailModel);
                 }
                 return RedirectToAction("Index");
@@ -117,8 +117,8 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             {
                 try
                 {
-                    var animal = await _systemService.GetAnimalWithDetails(id);
-                    if (animal != null && await _systemService.AddWeightToAnimal(newWeight, animal))
+                    var animal = await _animalService.GetAnimalWithDetails(id);
+                    if (animal != null && await _animalService.AddWeightToAnimal(newWeight, animal))
                     {
                         SetTempData("success", "The weight was added successfully.");
                     }
@@ -137,9 +137,9 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             try
             {
-                var weight = await _systemService.GetWeight(id, DateTime.Parse(label));
+                var weight = await _animalService.GetWeight(id, DateTime.Parse(label));
 
-                (var success, var message) = await _systemService.UpdateWeight(weight, value);
+                (var success, var message) = await _animalService.UpdateWeight(weight, value);
 
                 if (!success)
                 {
@@ -165,7 +165,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
             {
                 try
                 {
-                    if (await _systemService.AddVaccinationToAnimal(newVaccination, id))
+                    if (await _animalService.AddVaccinationToAnimal(newVaccination, id))
                     {
                         SetTempData("success", "The vaccination was added successfully.");
                     }
@@ -183,7 +183,7 @@ namespace VeterinarySystem.Areas.Employee.Controllers
         {
             try
             {
-                return new JsonResult(await _systemService.GetAllAppointmentsAsEvent(id));
+                return new JsonResult(await _animalService.GetAllAppointmentsAsEvent(id));
             }
             catch (Exception ex)
             {

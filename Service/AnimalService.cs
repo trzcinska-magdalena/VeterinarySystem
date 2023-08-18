@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json.Linq;
+using Serilog;
 using System.Linq.Expressions;
 using VeterinarySystem.Models;
 using VeterinarySystem.Models.Db;
@@ -11,87 +12,14 @@ using VeterinarySystem.Service.IService;
 
 namespace VeterinarySystem.Service
 {
-    public class SystemService : ISystemService
+    public class AnimalService : IAnimalService
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public SystemService(IUnitOfWork unitOfWork)
+        public AnimalService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-
-        public void SetLogError(Exception ex)
-        {
-            //TODO
-        }
-
-        public void SetLogInfo(string information)
-        {
-            // TODO
-        }
-
-        private IEnumerable<SelectListItem> GetSelectListItems<T>(IEnumerable<T> entities, Func<T, string> valueSelector, Func<T, string> textSelector)
-        {
-            var selectListItems = entities.Select(e => new SelectListItem
-            {
-                Value = valueSelector(e),
-                Text = textSelector(e)
-            });
-
-            return selectListItems;
-        }
-
-        // Base Management Controller
-        public async Task<BaseManagementViewModel> ConstructBaseManagementVMAsync()
-        {
-            var baseManagementViewModel = new BaseManagementViewModel
-            {
-                AllBreeds = await _unitOfWork.Breeds.GetAllAsync(tracking: false)
-            };
-            return baseManagementViewModel;
-        }
-
-        public async Task<bool> AddNewBreedAsync(Breed breed)
-        {
-            if (await _unitOfWork.Breeds.IsExistsAsync(e => e.Name == breed.Name))
-            {
-                SetLogInfo("");
-                return false;
-            }
-
-            _unitOfWork.Breeds.Add(breed);
-            await _unitOfWork.SaveAsync();
-
-            SetLogInfo("");
-            return true;
-        }
-
-        public async Task<(bool, string)> UpdateBreedAsync(Breed breed)
-        {
-            if (await _unitOfWork.Breeds.IsExistsAsync(e => e.Name == breed.Name))
-            {
-                SetLogInfo("");
-                return (false, "This breed exists!");
-            }
-
-            var breedToUpdate = await _unitOfWork.Breeds.GetAsync(e => e.Id == breed.Id && e.Name != breed.Name);
-            if (breedToUpdate == null)
-            {
-                SetLogInfo("");
-                return (false, "This breed does not exist!"); ;
-            }
-
-            breedToUpdate.Name = breed.Name;
-
-            _unitOfWork.Breeds.Update(breedToUpdate);
-            await _unitOfWork.SaveAsync();
-
-            SetLogInfo("");
-
-            return (true, "");
-        }
-
-        // Animal Controller
         public async Task<AnimalsViewModel> ConstructAnimalsVWAsync(string? searchString = null)
         {
             var animalViewModel = new AnimalsViewModel()
@@ -159,7 +87,7 @@ namespace VeterinarySystem.Service
         {
             string[] activeTabs = { "Weight", "Appointment", "Vaccination" };
 
-            if(!activeTabs.Contains(activeTab))
+            if (!activeTabs.Contains(activeTab))
             {
                 return false;
             }

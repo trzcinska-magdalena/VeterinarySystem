@@ -16,12 +16,12 @@ namespace VeterinarySystem.Areas.Admin.Controllers
     [Authorize(Roles = UserRole.Role_Admin)]
     public class BaseManagementController : Controller
     {
-        private readonly ISystemService _systemService;
+        private readonly IBaseManagementService _baseManagement;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BaseManagementController(ISystemService systemService, IUnitOfWork unitOfWork)
+        public BaseManagementController(IBaseManagementService baseManagement, IUnitOfWork unitOfWork)
         {
-            _systemService = systemService;
+            _baseManagement = baseManagement;
             _unitOfWork = unitOfWork;
         }
 
@@ -34,12 +34,12 @@ namespace VeterinarySystem.Areas.Admin.Controllers
         {
             try
             {
-                var model = await _systemService.ConstructBaseManagementVMAsync();
+                var model = await _baseManagement.ConstructBaseManagementVMAsync();
                 return View(model);
             }
             catch (Exception ex)
             {
-                _systemService.SetLogError(ex);
+                _baseManagement.SetLogError(ex);
                 return RedirectToAction("Index", "Error");
             }
         }
@@ -49,14 +49,14 @@ namespace VeterinarySystem.Areas.Admin.Controllers
         {
             try
             {
-                if (ModelState.IsValid && await _systemService.AddNewBreedAsync(newBreed))
+                if (ModelState.IsValid && await _baseManagement.AddNewBreedAsync(newBreed))
                 {
                     SetTempData("success", "The breed was created successfully.");
                     return RedirectToAction("Index");
                 }
 
                 SetTempData("error", "This breed exists!");
-                var model = await _systemService.ConstructBaseManagementVMAsync();
+                var model = await _baseManagement.ConstructBaseManagementVMAsync();
                 return View("Index", model);
             }
             catch (Exception ex)
@@ -71,7 +71,7 @@ namespace VeterinarySystem.Areas.Admin.Controllers
         {
             try
             {
-                (bool success, string message) = await _systemService.UpdateBreedAsync(newBreed);
+                (bool success, string message) = await _baseManagement.UpdateBreedAsync(newBreed);
                 if (ModelState.IsValid && success)
                 {
                     SetTempData("success", "The breed was updated successfully.");
@@ -79,7 +79,7 @@ namespace VeterinarySystem.Areas.Admin.Controllers
                 }
 
                 SetTempData("error", message);
-                var model = await _systemService.ConstructBaseManagementVMAsync();
+                var model = await _baseManagement.ConstructBaseManagementVMAsync();
                 //return View("Index", model);
                 return RedirectToAction("Index");
             }
